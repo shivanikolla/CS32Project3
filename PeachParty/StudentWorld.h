@@ -21,7 +21,8 @@ Actor* New(int imageID, int startX, int startY, int dir, int depth, std::string 
     
 private:
     std::vector<Actor*> m_actor;
-    int moneyInBank;
+    Peach* p;
+    Yoshi* yoshi;
 };
 
 #endif // STUDENTWORLD_H_

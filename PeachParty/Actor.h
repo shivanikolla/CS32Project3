@@ -10,12 +10,17 @@ class StudentWorld;
 class Actor: public GraphObject //add in a pointer to the student world object its playing in
 {
 public:
-    Actor(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): GraphObject(imageID, SPRITE_WIDTH*startX, SPRITE_HEIGHT*startY,dir, depth), m_studentWorld(w), waitingToRoll(true), alive(true) {}
+    Actor(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): GraphObject(imageID, SPRITE_WIDTH*startX, SPRITE_HEIGHT*startY,dir, depth) {
+        
+        m_studentWorld = w;
+        waitingToRoll = true;
+        alive = true;
+        
+    }
     
     virtual void doSomething() = 0;
-    StudentWorld* getWorld() const {return m_studentWorld; }
-    
-    bool waitingToRollState() {return waitingToRoll;}
+    StudentWorld* getWorld() const {  return m_studentWorld; }
+    bool waitingToRollState() const {  return waitingToRoll; }
 
 private:
     StudentWorld* m_studentWorld;
@@ -29,12 +34,18 @@ private:
 class PlayerAvatar: public Actor
 {
 public:
-    PlayerAvatar(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth, int number): Actor(w, imageID, startX, startY, dir, depth), ticks_to_Move(0), hasVortex(false), playerNumber(number), die_roll(0) {}
+    PlayerAvatar(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth, int number): Actor(w, imageID, startX, startY, dir, depth) {
+        
+        playerNumber = number;
+        walk_direction = 0;
+        die_roll = 0;
+        hasVortex = false;
+        ticks_to_Move = 0;
+        
+    }
     virtual void doSomething();//call determinePlayerNumber to decide if it needs to use left or right side of keyboard
-    void canUseVortex();
-    int getTicks() {return ticks_to_Move;}
-    int getDieRoll() { return die_roll;}
-    
+    int getTicks() const {  return ticks_to_Move;  }
+    int getDieRoll() const { return die_roll; }
     
 private:
     int ticks_to_Move;
@@ -43,22 +54,26 @@ private:
     int stars;
     int playerNumber;
     int die_roll;
-    //add variables for starting with zero coins and stars later
+    int walk_direction;
+    
 };
 
 class Peach : public PlayerAvatar
 {
 public:
-    Peach(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth, int number): PlayerAvatar(w, imageID, startX, startY, dir ,depth, number) {}
+    Peach(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth, int number): PlayerAvatar(w, imageID, startX, startY, dir ,depth, number) {
+      
+    }
     virtual void doSomething();
-
 private:
 };
 
 class Yoshi : public PlayerAvatar
 {
 public:
-    Yoshi(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth, int number): PlayerAvatar(w, imageID, startX, startY, dir ,depth, number) {}
+    Yoshi(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth, int number): PlayerAvatar(w, imageID, startX, startY, dir ,depth, number) {
+     
+    }
     virtual void doSomething();
 private:
 };
@@ -178,6 +193,7 @@ public:
     void vortexOverlapsWithaBaddie();
 
 private:
+    bool isActive = true;
 
 };
 

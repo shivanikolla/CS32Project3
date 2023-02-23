@@ -17,9 +17,7 @@ StudentWorld::StudentWorld(string assetPath)
 }
 
 int StudentWorld::init()
-{
-    moneyInBank = 0;
-    
+{    
     Board bd;
     string board_file = assetPath() + "board0" + to_string(getBoardNumber())+ ".txt";
     Board::LoadResult result = bd.loadBoard(board_file);
@@ -38,62 +36,65 @@ int StudentWorld::init()
             switch (ge) {
                     
                 case Board::empty: //populate with objects
-                    cout << "Location" << x << "," << y << "is empty\n";
+                    cout << "Location " << x << "," << y << " is empty\n";
                     break;
                 case Board::boo:
-                    cout << "Location" << x << "," <<y << "has a Boo and a blue coin square\n";
+                    cout << "Location " << x << "," <<y << " has a Boo and a blue coin square\n";
                     m_actor.push_back(new Boo(this, IID_BOO, x, y, 0, 0 ));
+                    m_actor.push_back(new BlueSquare(this, IID_BLUE_COIN_SQUARE, x, y, 0, 0));
                     break;
                 case Board::bowser:
-                    cout << "Location" << x << "," <<y << "has a Bowser and a blue coin square\n";
+                    cout << "Location " << x << "," <<y << " has a Bowser and a blue coin square\n";
                     m_actor.push_back(new Bowser(this, IID_BOWSER, x, y, 0, 0));
+                    m_actor.push_back(new BlueSquare(this, IID_BLUE_COIN_SQUARE, x, y, 0, 0));
                     break;
                 case Board::player:
-                    cout << "Location" << x << "," << y << "has a Player\n";
-                    m_actor.push_back(new PlayerAvatar(this, IID_PEACH, x, y, 0, 0, 1));
-                    m_actor.push_back(new PlayerAvatar(this, IID_YOSHI, x, y, 0, 0, 2));
+                    cout << "Location " << x << "," << y << " has a Player and a blue coin square\n";
+//                    m_actor.push_back(new PlayerAvatar(this, IID_PEACH, x, y, 0, 0, 1));
+//                    m_actor.push_back(new PlayerAvatar(this, IID_YOSHI, x, y, 0, 0, 2));
+                    m_actor.push_back(new BlueSquare(this, IID_BLUE_COIN_SQUARE, x, y, 0, 0));
+                    p = new Peach(this, IID_PEACH, x, y, 0, 0, 1);
+                    yoshi = new Yoshi(this, IID_YOSHI, x, y, 0, 0, 2);
                     break;
                 case Board::red_coin_square:
-                    cout << "Location" << x << "," << y << "has a red coin sqaure\n";
+                    cout << "Location " << x << "," << y << " has a red coin sqaure\n";
                     m_actor.push_back(new RedSquare(this, IID_RED_COIN_SQUARE, x, y, 0, 0));
                     break;
                 case Board::blue_coin_square:
-                    cout << "Location" << x << "," << y << "has a blue coin sqaure\n";
+                    cout << "Location " << x << "," << y << " has a blue coin sqaure\n";
                     m_actor.push_back(new BlueSquare(this, IID_BLUE_COIN_SQUARE, x, y, 0, 0));
                     break;
                 case Board::up_dir_square:
-                    cout << "Location" << x << "," << y << "is a up direction sqaure\n";
+                    cout << "Location " << x << "," << y << " is a up direction sqaure\n";
                     m_actor.push_back(new UpDirectionSquare(this, IID_DIR_SQUARE, x, y, 90, 0));
                     break;
                 case Board::down_dir_square:
-                    cout << "Location" << x << "," << y << "is a down direction sqaure\n";
+                    cout << "Location " << x << "," << y << " is a down direction sqaure\n";
                     m_actor.push_back(new DownDirectionSquare(this, IID_DIR_SQUARE, x, y, 270, 0));
                     break;
                 case Board::left_dir_square:
-                    cout << "Location" << x << "," << y << "is a left direction sqaure\n";
+                    cout << "Location " << x << "," << y << " is a left direction sqaure\n";
                     m_actor.push_back(new UpDirectionSquare(this, IID_DIR_SQUARE, x, y, 180, 0));
                     break;
                 case Board::right_dir_square:
-                    cout << "Location" << x << "," << y << "is a right direction sqaure\n";
+                    cout << "Location " << x << "," << y << " is a right direction sqaure\n";
                     m_actor.push_back(new UpDirectionSquare(this, IID_DIR_SQUARE, x, y, 0, 0));
                     break;
                 case Board::event_square:
-                    cout << "Location" << x << "," << y << "is a right direction sqaure\n";
+                    cout << "Location " << x << "," << y << " is an event sqaure\n";
                     m_actor.push_back(new UpDirectionSquare(this, IID_EVENT_SQUARE, x, y, 0, 0));
                     break;
                 case Board::bank_square:
-                    cout << "Location" << x << "," << y << "is a right direction sqaure\n";
+                    cout << "Location " << x << "," << y << " is a bank sqaure\n";
                     m_actor.push_back(new BankSquare(this, IID_BANK_SQUARE, x, y, 0, 0));
                     break;
                 case Board::star_square:
-                    cout << "Location" << x << "," << y << "is a right direction sqaure\n";
+                    cout << "Location " << x << "," << y << " is a star sqaure\n";
                     m_actor.push_back(new StarSquare(this, IID_STAR_SQUARE, x, y, 0, 0));
                     break;
             }
-            
         }
     }
-    
     
     startCountdownTimer(99);  // this placeholder causes timeout after 5 seconds
     return GWSTATUS_CONTINUE_GAME;
@@ -104,11 +105,14 @@ int StudentWorld::move()
     // This code is here merely to allow the game to build, run, and terminate after you hit ESC.
     // Notice that the return value GWSTATUS_NOT_IMPLEMENTED will cause our framework to end the game.
 
+    yoshi->PlayerAvatar::doSomething();
+    p->PlayerAvatar::doSomething();
+    
  if (timeRemaining() <= 0) {
     playSound(SOUND_GAME_FINISHED);
  }
  
-    
+    //add do something functions here to see movement
     
     
     setGameStatText("Game not implemented");
