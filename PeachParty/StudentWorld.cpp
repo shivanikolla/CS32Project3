@@ -261,6 +261,16 @@ bool StudentWorld::isLeftDirSquare(int x, int y)
     return false;
 }
 
+bool StudentWorld::isDirectionalSquare(int x, int y)
+{
+    if (b->getContentsOf(x/SPRITE_WIDTH, y/SPRITE_HEIGHT) == Board::left_dir_square || b->getContentsOf(x/SPRITE_WIDTH, y/SPRITE_HEIGHT) == Board::right_dir_square|| b->getContentsOf(x/SPRITE_WIDTH, y/SPRITE_HEIGHT) == Board::down_dir_square || b->getContentsOf(x/SPRITE_WIDTH, y/SPRITE_HEIGHT) == Board::up_dir_square)
+    {
+        return true;
+    }
+    
+    return false;
+    
+}
 
 bool StudentWorld::PlayerLandsOnSquare(Square* a, PlayerAvatar* b)
 {

@@ -10,7 +10,9 @@
 
 void PlayerAvatar::doSomething()
 {
+    bool previousState = false;
     if (waitingToRoll == true) { //if the playeravatar is in the waiting to roll state
+        previousState = true;
         
         int action = getWorld()-> getAction(playerNumber);
         if (action == ACTION_ROLL) { //rolling the "dice"
@@ -63,76 +65,141 @@ void PlayerAvatar::doSomething()
 
    if (waitingToRoll == false) //otherwise, if it is in the WALKING state
    {
+       int possibleDirections = 0;
+       bool canGoRight = false;
+       bool canGoLeft= false;
+       bool canGoUp = false;
+       bool canGoDown = false;
+       if (walk_direction == right) //checking if an object is at a fork
+       {
+           if (!getWorld()->boardisempty(getX()+16, getY())){
+               possibleDirections++;
+               canGoRight = true;
+           }
+           if (!getWorld()->boardisempty(getX(), getY()-16)) {
+               possibleDirections++;
+               canGoDown = true;
+           }
+           if (!getWorld()->boardisempty(getX(), getY()+16)) {
+               possibleDirections++;
+               canGoUp = true;
+           }
+       }
+       else if (walk_direction == left)
+       {
+           if (!getWorld()->boardisempty(getX()-16, getY())) { //left
+               possibleDirections++;
+               canGoLeft = true;
+           }
+           if (!getWorld()->boardisempty(getX(), getY()-16)) {//down
+               possibleDirections++;
+               canGoDown = true;
+           }
+           if (!getWorld()->boardisempty(getX(), getY()+16)) {//up
+               possibleDirections++;
+               canGoUp = true;
+           }
+           
+       }
+       else if (walk_direction == up)
+       {
+           if (!getWorld()->boardisempty(getX(), getY()+16)) {//up
+               possibleDirections++;
+               canGoUp = true;
+           }
+           if (!getWorld()->boardisempty(getX()-16, getY())) {//left
+               possibleDirections++;
+               canGoLeft = true;
+           }
+           if (!getWorld()->boardisempty(getX()+16, getY())) { //right
+               possibleDirections++;
+               canGoRight = true;
+           }
+
+       }
+       else if (walk_direction == down)
+       {
+           if (!getWorld()->boardisempty(getX(), getY()-16)) {
+               possibleDirections++;
+               canGoDown = true;
+           }
+           if (!getWorld()->boardisempty(getX()+16, getY())) {
+               possibleDirections++;
+               canGoRight = true;
+           }
+           if (!getWorld()->boardisempty(getX()-16, getY())) {
+               possibleDirections++;
+               canGoLeft = true;
+           }
+       }
+       
+       
+       
+       int nextX;
+       int nextY;
+       
+       getPositionInThisDirection(walk_direction, 16, nextX, nextY); // get the next square in the current direction
+       
        if (getX()%16 == 0 && getY()%16 == 0)  //only check if the current position is exactly on top of a square
        {
-       
-           if(getWorld()->isRightDirSquare(getX(), getY())) {//checking if on a directional square
-           walk_direction = right;
+           if (getWorld()->isDirectionalSquare(getX(), getY())) { //checking if on a directional square
+           
+               if(getWorld()->isRightDirSquare(getX(), getY()))
+               {
+                   walk_direction = right;
+               }
+           
+               else if (getWorld()->isUpDirSquare(getX(), getY()))
+               {
+                   walk_direction = up;
+               }
+               else if (getWorld()->isDownDirSquare(getX(), getY()))
+               {
+                   walk_direction = down;
+               }
+               else if (getWorld()->isLeftDirSquare(getX(), getY()))
+               {
+                   walk_direction = left;
+               }
            }
-           
-           else if (getWorld()->isUpDirSquare(getX(), getY())) {
-           walk_direction = up;
-           }
-           else if (getWorld()->isDownDirSquare(getX(), getY())) {
-           walk_direction = down;
-       }
-       else if (getWorld()->isLeftDirSquare(getX(), getY())) {
-           walk_direction = left;
-            }
-            
        
            
-       else if (!getWorld()->boardisempty(getX(), getY())) { //checking for movement at the fork
-           int forkX;
-           int forkY;
-           int action = getWorld()->getAction(playerNumber);
-           
-           switch (walk_direction) {
-               case down:
-               case up:
-                   getPositionInThisDirection(right, 16, forkX, forkY);
-                   if (!getWorld()->boardisempty(forkX, forkY)) {
-                       if (action == ACTION_RIGHT) {
-                           walk_direction = right;
-                       }
-                   }
-                   getPositionInThisDirection(left, 16, forkX, forkY);
-                   if (!getWorld()->boardisempty(forkX, forkY)) {
-                       if (action == ACTION_LEFT) {
-                           walk_direction = left;
-                       }
-                       
-                   }
-                   break;
-               case right:
-               case left:
-                   getPositionInThisDirection(up, 16, forkX, forkY);
-                   if (!getWorld()->boardisempty(forkX, forkY))
-                   {
-                       if (action == ACTION_UP) {
-                           walk_direction = up;
-                       }
-                   }
-                   getPositionInThisDirection(down, 16, forkX, forkY);
-                   if (!getWorld()->boardisempty(forkX, forkY)) {
-                       if (action == ACTION_DOWN) {
-                           walk_direction = down;
-                       }
-                       
-                   }
+           else if (possibleDirections >= 2 && previousState == false) //if possible directions is greater than or equal to 2, that means the object is at a fork
+           {
+               
+               std::cerr << "entered fork statement";
+               int action = getWorld()->getAction(playerNumber);
+               
+               if (action == ACTION_RIGHT && canGoRight == true)
+               {
+                   walk_direction = right;
+                   setDirection(0);
+               }
+               else if (action == ACTION_LEFT && canGoLeft == true)
+               {
+                   walk_direction = left;
+                   setDirection(180);
                    
-               default:
-                   break;
+               }
+               else if (action == ACTION_DOWN && canGoDown == true)
+               {
+                   walk_direction = down;
+                   setDirection(0);
+                   
+               }
+               else if (action == ACTION_UP && canGoUp == true)
+               {
+                   walk_direction = up;
+                   setDirection(0);
+               }
+               else
+               {
+                   return;
+               }
+               
            }
-    
-           
-       }
-           int nextX;
-           int nextY;
-           
-           getPositionInThisDirection(walk_direction, 16, nextX, nextY); // get the next square in the current direction
        
-       if (getWorld()->boardisempty(nextX, nextY)) //if it is empty
+       else if (getWorld()->boardisempty(nextX, nextY)) //if it is empty
        {
            switch (walk_direction) {
                case right:
