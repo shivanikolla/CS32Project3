@@ -261,6 +261,7 @@ bool StudentWorld::isLeftDirSquare(int x, int y)
     return false;
 }
 
+
 bool StudentWorld::PlayerLandsOnSquare(Square* a, PlayerAvatar* b)
 {
     if (a->getX() == b->getX() && a->getY() == b->getY())
@@ -280,4 +281,13 @@ bool StudentWorld::PlayerMovesOnSquare(Square* a, PlayerAvatar* b)
     }
     return false;
     
+}
+
+bool StudentWorld::PlayersOnSameSquare(Actor* a, Actor* b)
+{
+    if (a->getX() == b->getX() && a->getY() == b->getY())
+    {
+        return true;
+    }
+    return false;
 }

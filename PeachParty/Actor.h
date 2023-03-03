@@ -73,6 +73,10 @@ public:
     bool getState() const { return waitingToRoll;}
     void setNewPlayerstatus(bool value) {newPlayer = value;}
     bool newPlayerStatus() {return newPlayer; }
+    bool getWaitingToRollState() {return waitingToRoll;}
+    void setWaitingToRollState(bool value) { waitingToRoll = value;}
+    void swapCoins(int value) {m_Coins = value;}
+    void swapStars(int value) {m_Stars = value;}
     
 private:
     int ticks_to_Move;
@@ -126,7 +130,7 @@ class EventSquare : public Square
 {
 public:
     EventSquare(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth) : Square(w, imageID, startX, startY, dir, depth) {}
-    virtual void doSomething(){}
+    virtual void doSomething();
 
 private:
 };
@@ -164,17 +168,26 @@ private:
 class Baddy: public Actor
 {
 public:
-    Baddy(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Actor(w, imageID, startX, startY, dir, depth) {}
+    Baddy(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Actor(w, imageID, startX, startY, dir, depth) {
+        pausedState = true;
+        pauseCounter = 180;
+        initialTravelDistance = 0;
+    }
     virtual void doSomething() {return;}
+    bool getPausedState() {return pausedState;}
+    void setPausedState(bool value) { pausedState = value;}
+    void setPauseCounter(int value) {pauseCounter += value;}
 private:
-    
+    bool pausedState;
+    int pauseCounter;
+    int initialTravelDistance;
 };
 
 class Bowser : public Baddy
 {
 public:
     Bowser(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth) : Baddy(w, imageID, startX, startY, dir, depth) {}
-    virtual void doSomething() {}
+    virtual void doSomething();
 private:
     
 };
@@ -183,7 +196,7 @@ class Boo: public Baddy
 {
 public:
     Boo(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth) : Baddy(w, imageID, startX, startY, dir, depth) {}
-    virtual void doSomething() {}
+    virtual void doSomething();
 private:
 };
 

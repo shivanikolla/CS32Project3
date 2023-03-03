@@ -24,16 +24,19 @@ public:
   bool isBlueCoinSquare(int x, int y);
     bool isRedCoinSquare(int x, int y);
     bool hasPlayer(int x, int y);
-//  Board* getBoard() const {return b;}
   void createVortex(int x, int y);
     bool isUpDirSquare(int x, int y);
     bool isDownDirSquare(int x, int y);
     bool isRightDirSquare(int x, int y);
     bool isLeftDirSquare(int x, int y);
+    bool isDirectionalSquare(int x, int y);
+    
     PlayerAvatar* getPeach() {return p;}
     PlayerAvatar* getYoshi() {return yoshi;}
+    
     bool PlayerLandsOnSquare(Square* a, PlayerAvatar* b);
     bool PlayerMovesOnSquare(Square* a, PlayerAvatar* b);
+    bool PlayersOnSameSquare(Actor* a,Actor* b);
     int getBankAccountValue() { return bankAccountValue;}
     void setBankAccountValue(int value) {bankAccountValue += value; }
     

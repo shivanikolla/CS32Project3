@@ -63,29 +63,74 @@ void PlayerAvatar::doSomething()
 
    if (waitingToRoll == false) //otherwise, if it is in the WALKING state
    {
-       if (getX()%16 == 0 && getY()% 16 == 0) {
+       if (getX()%16 == 0 && getY()%16 == 0)  //only check if the current position is exactly on top of a square
+       {
        
-       if(getWorld()->isRightDirSquare(getX(), getY())) {
+           if(getWorld()->isRightDirSquare(getX(), getY())) {//checking if on a directional square
            walk_direction = right;
-       }
-       else if (getWorld()->isUpDirSquare(getX(), getY())) {
+           }
+           
+           else if (getWorld()->isUpDirSquare(getX(), getY())) {
            walk_direction = up;
-       }
-       else if (getWorld()->isDownDirSquare(getX(), getY())) {
+           }
+           else if (getWorld()->isDownDirSquare(getX(), getY())) {
            walk_direction = down;
        }
        else if (getWorld()->isLeftDirSquare(getX(), getY())) {
            walk_direction = left;
-       }
+            }
+            
        
+           
+       else if (!getWorld()->boardisempty(getX(), getY())) { //checking for movement at the fork
+           int forkX;
+           int forkY;
+           int action = getWorld()->getAction(playerNumber);
+           
+           switch (walk_direction) {
+               case down:
+               case up:
+                   getPositionInThisDirection(right, 16, forkX, forkY);
+                   if (!getWorld()->boardisempty(forkX, forkY)) {
+                       if (action == ACTION_RIGHT) {
+                           walk_direction = right;
+                       }
+                   }
+                   getPositionInThisDirection(left, 16, forkX, forkY);
+                   if (!getWorld()->boardisempty(forkX, forkY)) {
+                       if (action == ACTION_LEFT) {
+                           walk_direction = left;
+                       }
+                       
+                   }
+                   break;
+               case right:
+               case left:
+                   getPositionInThisDirection(up, 16, forkX, forkY);
+                   if (!getWorld()->boardisempty(forkX, forkY))
+                   {
+                       if (action == ACTION_UP) {
+                           walk_direction = up;
+                       }
+                   }
+                   getPositionInThisDirection(down, 16, forkX, forkY);
+                   if (!getWorld()->boardisempty(forkX, forkY)) {
+                       if (action == ACTION_DOWN) {
+                           walk_direction = down;
+                       }
+                       
+                   }
+                   
+               default:
+                   break;
+           }
+    
+           
        }
-       int nextX;
-       int nextY;
-       
-       if (getX()%16 == 0 && getY()%16 == 0) {//only check if the current position is exactly on top of a square
+           int nextX;
+           int nextY;
            
            getPositionInThisDirection(walk_direction, 16, nextX, nextY); // get the next square in the current direction
-       
        
        if (getWorld()->boardisempty(nextX, nextY)) //if it is empty
        {
@@ -122,7 +167,7 @@ void PlayerAvatar::doSomething()
                    break;
                default:
                    break;
-           }
+                }
            
             }
          
@@ -267,7 +312,7 @@ void BankSquare::doSomething()
 
         int value = getWorld()->getBankAccountValue();
         getWorld()->getYoshi()->setCoins(value);
-        getWorld()->getYoshi()->setCoins(-value);
+        getWorld()->setBankAccountValue(-value);
         getWorld()->playSound(SOUND_WITHDRAW_BANK);
 
     }
@@ -374,4 +419,147 @@ void DroppingSquare::doSomething()
         
     }
   
+}
+
+
+///////////////////////////////////////////////
+///Bowser Implementations ////
+///////////////////////////////////////////////
+
+void Bowser::doSomething()
+{
+    if(getPausedState())
+    {
+        
+        if (getWorld()->PlayersOnSameSquare(this, getWorld()->getPeach()) && getWorld()->getPeach()->getWaitingToRollState() == true)
+        {
+            int value = randInt(1, 2);
+            if (value == 1)
+            {
+                getWorld()->getPeach()->swapCoins(0);
+                getWorld()->getPeach()->swapStars(0);
+                getWorld()->playSound(SOUND_BOWSER_ACTIVATE);
+            }
+            
+        }
+        else if (getWorld()->PlayersOnSameSquare(this, getWorld()->getYoshi()) && getWorld()->getYoshi()->getWaitingToRollState() == true)
+        {
+            int value = randInt(1, 2);
+            if (value == 1)
+            {
+                getWorld()->getYoshi()->swapCoins(0);
+                getWorld()->getYoshi()->swapStars(0);
+                getWorld()->playSound(SOUND_BOWSER_ACTIVATE);
+            }
+ 
+        }
+        
+        
+        setPauseCounter(-1);
+        
+        
+    }
+    
+    
+    
+    
+    
+    
+    
+}
+
+/////////////////////////////////////////////
+///Boo Implementations ////////
+/////////////////////////////////////////////
+
+void Boo::doSomething()
+{
+    if (getPausedState())
+    {
+        if (getWorld()->PlayersOnSameSquare(this, getWorld()->getPeach()) && getWorld()->getPeach()->getWaitingToRollState() == true) //checking if Peach and Boo are on the same square first
+        {
+            int value = randInt(1, 2);
+            if (value == 1)
+            {
+                int Peachvalue = getWorld()->getPeach()->getCoins();
+                int Yoshivalue = getWorld()->getYoshi()->getCoins();
+                getWorld()->getPeach()->swapCoins(Yoshivalue);
+                getWorld()->getYoshi()->swapCoins(Peachvalue);
+                
+            }
+            else if (value == 2)
+            {
+                int PeachValue = getWorld()->getPeach()->getStars();
+                int YoshiValue = getWorld()->getYoshi()->getStars();
+                
+                getWorld()->getPeach()->swapStars(YoshiValue);
+                getWorld()->getYoshi()->swapStars(PeachValue);
+                
+            }
+            
+            getWorld()->playSound(SOUND_BOO_ACTIVATE);
+        }
+      else if (getWorld()->PlayersOnSameSquare(this, getWorld()->getYoshi()) && getWorld()->getYoshi()->getWaitingToRollState() == true)
+      {
+          
+          int value = randInt(1, 2);
+          if (value == 1)
+          {
+              int Peachvalue = getWorld()->getPeach()->getCoins();
+              int Yoshivalue = getWorld()->getYoshi()->getCoins();
+              getWorld()->getPeach()->swapCoins(Yoshivalue);
+              getWorld()->getYoshi()->swapCoins(Peachvalue);
+              
+          }
+          else if (value == 2)
+          {
+              int PeachValue = getWorld()->getPeach()->getStars();
+              int YoshiValue = getWorld()->getYoshi()->getStars();
+              
+              getWorld()->getPeach()->swapStars(YoshiValue);
+              getWorld()->getYoshi()->swapStars(PeachValue);
+              
+          }
+          
+          getWorld()->playSound(SOUND_BOO_ACTIVATE);
+          
+      }
+        
+        setPauseCounter(-1);
+        setPausedState(false);
+    }
+   if (!getPausedState())
+   {
+       
+       
+       
+   }
+    
+}
+
+/////////////////////////////////////////////////////////
+///EventSquare Implementations /////
+/////////////////////////////////////////////////////////
+void EventSquare::doSomething()
+{
+    
+    if (getWorld()->PlayerLandsOnSquare(this, getWorld()->getPeach()) && getWorld()->getPeach()->newPlayerStatus() == true)
+    {
+        int value = randInt(1, 3);
+        switch (value) {
+            case 1:
+                break;
+            case 2:
+                break;
+                
+            case 3:
+                break;
+        }
+        
+        
+        
+    }
+    
+    
+    
 }
