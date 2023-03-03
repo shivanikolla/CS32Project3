@@ -250,18 +250,128 @@ void StarSquare::doSomething()
 
 void BankSquare::doSomething()
 {
-    
-//    //checking Peach first
-//    if (getWorld()->PlayerLandsOnSquare(this, getWorld()->getPeach())
-//        {
+    if (getWorld()->PlayerLandsOnSquare(this, getWorld()->getPeach()))   //checking if Peach has LANDED on the square
+    {
+        getWorld()->getPeach()->setNewPlayerstatus(false);
+        
+        int value = getWorld()->getBankAccountValue();
+        getWorld()->getPeach()->setCoins(value);
+        getWorld()->setBankAccountValue(-value);
+        getWorld()->playSound(SOUND_WITHDRAW_BANK);
+
+
+    }
+    else if (getWorld()->PlayerLandsOnSquare(this, getWorld()->getYoshi())) //checking if Yoshi has LANDED on the square
+    {
+        getWorld()->getYoshi()->setNewPlayerstatus(false);
+
+        int value = getWorld()->getBankAccountValue();
+        getWorld()->getYoshi()->setCoins(value);
+        getWorld()->getYoshi()->setCoins(-value);
+        getWorld()->playSound(SOUND_WITHDRAW_BANK);
+
+    }
+    else if (getWorld()->PlayerMovesOnSquare(this, getWorld()->getPeach())) //checking if Peach has MOVED on the square
+    {
+        int value = getWorld()->getPeach()->getCoins();
+        if (value < 5) {
+
+            getWorld()->getPeach()->setCoins(-value);
+            getWorld()->setBankAccountValue(value);
+        }
+        else
+        {
+            
+            getWorld()->getPeach()->setCoins(-5);
+            getWorld()->setBankAccountValue(5);
+        }
+        getWorld()->playSound(SOUND_DEPOSIT_BANK);
+
+    }
+    else if (getWorld()->PlayerMovesOnSquare(this, getWorld()->getYoshi())) //checking if Yoshi has MOVED on the square
+    {
+
+        int value = getWorld()->getYoshi()->getCoins();
+        if (value < 5) {
+            
+            getWorld()->getYoshi()->setCoins(-value);
+            getWorld()->setBankAccountValue(value);
+        }
+        else
+        {
+            getWorld()->getYoshi()->setCoins(-5);
+            getWorld()->setBankAccountValue(5);
+        }
+
+        getWorld()->playSound(SOUND_DEPOSIT_BANK);
+
+    }
 //
-//
-//    }
+}
+
+/////////////////////////////////////////////////////////////////
+///Dropping Square Implementations /////
+////////////////////////////////////////////////////////////////
+
+void DroppingSquare::doSomething()
+{
     
-    
-    
-    
-    
-    
-    
+    if (getWorld()->PlayerLandsOnSquare(this, getWorld()->getPeach()) && getWorld()->getPeach()->newPlayerStatus() == true)
+    {
+        int value = randInt(1, 2);
+        int playerCoins = getWorld()->getPeach()->getCoins();
+        int playerStars = getWorld()->getPeach()->getStars();
+        switch (value) {
+            case 1:
+                if (playerCoins < 10) {
+                    
+                    getWorld()->getPeach()->setCoins(-playerCoins);
+                    
+                }
+                else
+                {
+                    getWorld()->getPeach()->setCoins(-10);
+                }
+                getWorld()->playSound(SOUND_DROPPING_SQUARE_ACTIVATE);
+                break;
+            case 2:
+               if (playerStars >=1)
+               {
+                   getWorld()->getPeach()->setStars(-1);
+               }
+                getWorld()->playSound(SOUND_DROPPING_SQUARE_ACTIVATE);
+                break;
+        }
+    }
+    else if (getWorld()->PlayerLandsOnSquare(this, getWorld()->getYoshi()) && getWorld()->getYoshi()->newPlayerStatus() == true)
+    {
+        
+        int value = randInt(1, 2);
+        int playerCoins = getWorld()->getYoshi()->getCoins();
+        int playerStars = getWorld()->getYoshi()->getStars();
+        
+        switch (value) {
+            case 1:
+                if (playerCoins < 10) {
+                    
+                    getWorld()->getYoshi()->setCoins(-playerCoins);
+                    
+                }
+                else
+                {
+                    getWorld()->getYoshi()->setCoins(-10);
+                }
+                getWorld()->playSound(SOUND_DROPPING_SQUARE_ACTIVATE);
+                break;
+            case 2:
+                if (playerStars >=1)
+                {
+                    getWorld()->getYoshi()->setStars(-1);
+                }
+                getWorld()->playSound(SOUND_DROPPING_SQUARE_ACTIVATE);
+                break;
+        }
+        
+    }
+  
 }

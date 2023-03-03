@@ -17,6 +17,7 @@ StudentWorld::StudentWorld(string assetPath)
     yoshi = nullptr;
     b = new Board();
     newVortex = nullptr;
+    bankAccountValue = 0;
     
 }
 
@@ -94,7 +95,7 @@ int StudentWorld::move()
 {
     // This code is here merely to allow the game to build, run, and terminate after you hit ESC.
  // Notice that the return value GWSTATUS_NOT_IMPLEMENTED will cause our framework to end the game.
-    setGameStatText("P1 Roll: " + to_string(p->getStars()) + " Stars: " + to_string(p->getCoins()) + " $$ VOR:  | Time: " + to_string(timeRemaining()) + " | Bank: | P2 Roll: " + to_string(yoshi->getStars()) + " Stars: " + to_string(yoshi->getCoins()) + " $$ VOR: ");
+    setGameStatText("P1 Roll: " + to_string(p->getStars()) + " Stars: " + to_string(p->getCoins()) + " $$ VOR:  | Time: " + to_string(timeRemaining()) + " | Bank: " + to_string(getBankAccountValue())+ " | P2 Roll: " + to_string(yoshi->getStars()) + " Stars: " + to_string(yoshi->getCoins()) + " $$ VOR: ");
     
     if (timeRemaining() <= 0) {
         

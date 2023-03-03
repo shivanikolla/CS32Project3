@@ -34,6 +34,8 @@ public:
     PlayerAvatar* getYoshi() {return yoshi;}
     bool PlayerLandsOnSquare(Square* a, PlayerAvatar* b);
     bool PlayerMovesOnSquare(Square* a, PlayerAvatar* b);
+    int getBankAccountValue() { return bankAccountValue;}
+    void setBankAccountValue(int value) {bankAccountValue += value; }
     
     //actually make two different methods: one that checks if the player has "moved" onto the square and one that checks if the player has "landed" on the square(waiting to roll state equals true
     
@@ -43,6 +45,7 @@ private:
     PlayerAvatar* yoshi; //to keep track of yoshi
     Board* b;
     Vortex* newVortex; //used for dynamically allocating a new vortex
+    int bankAccountValue;
 };
 
 #endif // STUDENTWORLD_H_

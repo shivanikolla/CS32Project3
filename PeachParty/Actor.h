@@ -8,7 +8,7 @@
 // Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
 class StudentWorld;
 
-class Actor: public GraphObject //Abstract that base class that defines all actors
+class Actor: public GraphObject //Abstract base class that defines all actors
 {
 public:
     Actor(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): GraphObject(imageID, SPRITE_WIDTH*startX, SPRITE_HEIGHT*startY,dir, depth) {
@@ -96,7 +96,6 @@ public:
     Square(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Actor(w, imageID, startX, startY, dir, depth) {
         isActive = true;
     }
-
     bool isSquareActive() {return isActive;}
     
 private:
@@ -136,14 +135,9 @@ class BankSquare : public Square
 {
 public:
     BankSquare(StudentWorld * w, int imageID, int startX, int startY, int dir, int depth) :  Square(w, imageID, startX, startY, dir, depth) {
-        bankAccountValue = 0;
     }
-    
-    int getBankAccountValue() const { return bankAccountValue;}
-    void setBankAccountValue(int value) { bankAccountValue += value;}
     virtual void doSomething();
 private:
-    int bankAccountValue;
 };
 
 class DirectionSquare: public Square
@@ -154,6 +148,15 @@ public:
     
 private:
     
+};
+
+class DroppingSquare: public Square
+{
+public:
+    DroppingSquare(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Square(w, imageID, startX, startY, dir, depth) {}
+    virtual void doSomething();
+    
+private:
 };
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
