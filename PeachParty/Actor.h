@@ -2,83 +2,161 @@
 #define ACTOR_H_
 
 #include "GraphObject.h"
+#include "Board.h"
 
 
 // Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
 class StudentWorld;
 
-class Actor: public GraphObject //add in a pointer to the student world object its playing in
+class Actor: public GraphObject //Abstract that base class that defines all actors
 {
 public:
     Actor(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): GraphObject(imageID, SPRITE_WIDTH*startX, SPRITE_HEIGHT*startY,dir, depth) {
-        
         m_studentWorld = w;
-        waitingToRoll = true;
-        alive = true;
-        
+        isAlive = true;
     }
     
-    virtual void doSomething() = 0;
+    virtual void doSomething() = 0; //pure virtual function because we will never actually implement an actor object
     StudentWorld* getWorld() const {  return m_studentWorld; }
-    bool waitingToRollState() const {  return waitingToRoll; }
-
+//    virtual bool is_a_square() const = 0;
+//    virtual bool can_be_hit_by_vortex() const;
+//    bool is_active() const;
+    
+    
+    bool stillAlive() const {return isAlive;}
+    void setAliveStatus(bool status) {isAlive= status;}
+    
+    
 private:
     StudentWorld* m_studentWorld;
-    bool waitingToRoll;
-    bool alive;
-    
+    bool isAlive;
 };
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-class PlayerAvatar: public Actor
+class Vortex : public Actor //Vortex doesn't share many similarities with any other classes so is directly derived from Actor
+{
+public:
+    Vortex(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Actor(w, imageID, startX, startY, dir, depth) {
+        isActive = true;
+    }
+    
+    virtual void doSomething(){}
+    
+private:
+    bool isActive;
+
+};
+
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+class PlayerAvatar: public Actor //playerAvatar class to represent Peach and Yoshi because they behave similarly
 {
 public:
     PlayerAvatar(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth, int number): Actor(w, imageID, startX, startY, dir, depth) {
         
         playerNumber = number;
-        walk_direction = 0;
+        walk_direction = right;
         die_roll = 0;
         hasVortex = false;
         ticks_to_Move = 0;
-        
+        m_Coins = m_Stars = 0;
+        waitingToRoll = true;
+        newPlayer = false;
     }
-    virtual void doSomething();//call determinePlayerNumber to decide if it needs to use left or right side of keyboard
-    int getTicks() const {  return ticks_to_Move;  }
-    int getDieRoll() const { return die_roll; }
+    
+    virtual void doSomething(); 
+    int getCoins() const { return m_Coins; }
+    int getStars() const { return m_Stars; }
+    int getWalkDirection() const { return walk_direction; }
+    void setCoins(int coins) { m_Coins += coins;}
+    void setStars(int stars) {m_Stars +=stars;}
+    bool getState() const { return waitingToRoll;}
+    void setNewPlayerstatus(bool value) {newPlayer = value;}
+    bool newPlayerStatus() {return newPlayer; }
     
 private:
     int ticks_to_Move;
     bool hasVortex;
-    int coins;
-    int stars;
+    int m_Coins;
+    int m_Stars;
     int playerNumber;
     int die_roll;
     int walk_direction;
+    bool waitingToRoll;
+    bool newPlayer;
+    Vortex* newVortex;
     
 };
 
-class Peach : public PlayerAvatar
-{
-public:
-    Peach(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth, int number): PlayerAvatar(w, imageID, startX, startY, dir ,depth, number) {
-      
-    }
-    virtual void doSomething();
-private:
-};
-
-class Yoshi : public PlayerAvatar
-{
-public:
-    Yoshi(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth, int number): PlayerAvatar(w, imageID, startX, startY, dir ,depth, number) {
-     
-    }
-    virtual void doSomething();
-private:
-};
-
 //------------------------------------------------------------------------------------------------------------------------------------------------
+class Square: public Actor //Base class that all squares are derived from
+{
+public:
+    virtual void doSomething() {return;}
+    Square(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Actor(w, imageID, startX, startY, dir, depth) {
+        isActive = true;
+    }
+
+    bool isSquareActive() {return isActive;}
+    
+private:
+    bool isActive;
+};
+
+class CoinSquare: public Square
+{
+public:
+    CoinSquare(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Square (w, imageID, startX, startY, dir, depth) {
+    }
+    virtual void doSomething();
+    
+private:
+    
+};
+
+class StarSquare: public Square
+{
+public:
+    StarSquare(StudentWorld * w, int imageID, int startX, int startY, int dir, int depth) :  Square(w, imageID, startX, startY, dir, depth) {}
+    virtual void doSomething();
+private:
+    
+};
+
+class EventSquare : public Square
+{
+public:
+    EventSquare(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth) : Square(w, imageID, startX, startY, dir, depth) {}
+    virtual void doSomething(){}
+
+private:
+};
+
+class BankSquare : public Square
+{
+public:
+    BankSquare(StudentWorld * w, int imageID, int startX, int startY, int dir, int depth) :  Square(w, imageID, startX, startY, dir, depth) {
+        bankAccountValue = 0;
+    }
+    
+    int getBankAccountValue() const { return bankAccountValue;}
+    void setBankAccountValue(int value) { bankAccountValue += value;}
+    virtual void doSomething();
+private:
+    int bankAccountValue;
+};
+
+class DirectionSquare: public Square
+{
+public:
+    DirectionSquare(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Square(w, imageID, startX, startY, dir, depth) {}
+    virtual void doSomething() {}
+    
+private:
+    
+};
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 class Baddy: public Actor
 {
@@ -106,96 +184,6 @@ public:
 private:
 };
 
-
-//------------------------------------------------------------------------------------------------------------------------------------------------
-class Square: public Actor //Abstract Base class that all squares are derived from
-{
-public:
-//    virtual void changePlayersStarsorCoins();
-    virtual void doSomething() {return;}
-    Square(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Actor(w, imageID, startX, startY, dir, depth) {}
-};
-
-class CoinSquare: public Square
-{
-public:
-    CoinSquare(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Square (w, imageID, startX, startY, dir, depth) {}
-    virtual void doSomething() {}
-private:
-};
-
-class BlueSquare: public CoinSquare
-{
-public:
-    BlueSquare(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth) : CoinSquare(w, imageID, startX, startY, dir, depth) {}
-    virtual void doSomething() {}
-private:
-};
-
-class RedSquare: public CoinSquare
-{
-public:
-    RedSquare(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth) : CoinSquare(w, imageID, startX, startY, dir, depth) {}
-    virtual void doSomething() {}
-private:
-    
-    
-};
-
-class EventSquare : public Square
-{
-public:
-    EventSquare(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth) : Square(w, imageID, startX, startY, dir, depth) {}
-
-private:
-};
-
-class BankSquare : public Square
-{
-public:
-    BankSquare(StudentWorld * w, int imageID, int startX, int startY, int dir, int depth) :  Square(w, imageID, startX, startY, dir, depth) {}
-   
-private:
-
-};
-
-class UpDirectionSquare : public Square
-{
-public:
-    UpDirectionSquare(StudentWorld * w, int imageID, int startX, int startY, int dir, int depth) :  Square(w, imageID, startX, startY, dir, depth) {}
-    
-private:
-    
-};
-
-class DownDirectionSquare: public Square
-{
-public:
-    DownDirectionSquare(StudentWorld * w, int imageID, int startX, int startY, int dir, int depth) :  Square(w, imageID, startX, startY, dir, depth) {}
-    
-private:
-    
-};
-
-class StarSquare: public Square
-{
-public:
-    StarSquare(StudentWorld * w, int imageID, int startX, int startY, int dir, int depth) :  Square(w, imageID, startX, startY, dir, depth) {}
-private:
-    
-};
-
-//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-class Vortex : public Actor
-{
-public:
-    virtual void doSomething();
-    void vortexOverlapsWithaBaddie();
-
-private:
-    bool isActive = true;
-
-};
 
 #endif // ACTOR_H_
 

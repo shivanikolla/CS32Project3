@@ -17,12 +17,32 @@ public:
   virtual int init();
   virtual int move();
   virtual void cleanUp();
-Actor* New(int imageID, int startX, int startY, int dir, int depth, std::string className);
+    ~StudentWorld();
+    
+//new functions
+  bool boardisempty(int x, int y); //checks if a given square is empty
+  bool isBlueCoinSquare(int x, int y);
+    bool isRedCoinSquare(int x, int y);
+    bool hasPlayer(int x, int y);
+//  Board* getBoard() const {return b;}
+  void createVortex(int x, int y);
+    bool isUpDirSquare(int x, int y);
+    bool isDownDirSquare(int x, int y);
+    bool isRightDirSquare(int x, int y);
+    bool isLeftDirSquare(int x, int y);
+    PlayerAvatar* getPeach() {return p;}
+    PlayerAvatar* getYoshi() {return yoshi;}
+    bool PlayerLandsOnSquare(Square* a, PlayerAvatar* b);
+    bool PlayerMovesOnSquare(Square* a, PlayerAvatar* b);
+    
+    //actually make two different methods: one that checks if the player has "moved" onto the square and one that checks if the player has "landed" on the square(waiting to roll state equals true
     
 private:
     std::vector<Actor*> m_actor;
-    Peach* p;
-    Yoshi* yoshi;
+    PlayerAvatar* p; //to keep track of peach
+    PlayerAvatar* yoshi; //to keep track of yoshi
+    Board* b;
+    Vortex* newVortex; //used for dynamically allocating a new vortex
 };
 
 #endif // STUDENTWORLD_H_
