@@ -49,13 +49,42 @@ private:
 };
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-class PlayerAvatar: public Actor //playerAvatar class to represent Peach and Yoshi because they behave similarly
+class MovingObject: public Actor //movingObject class which PlayerAvatar, Boo, and Bowser are derived from
 {
 public:
-    PlayerAvatar(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth, int number): Actor(w, imageID, startX, startY, dir, depth) {
+    MovingObject(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Actor(w, imageID, startX, startY, dir, depth) {
+        walk_direction = right;
+        canGoUp = false;
+        canGoDown = false;
+        canGoRight = false;
+        canGoLeft = false;
+    }
+    int possibleMovementDirections();
+    int WalkDirection() {return walk_direction;}
+    void SetWalkDirection(int value) {walk_direction = value;}
+    int getWalkDirection() {return walk_direction;}
+    bool canMoveRight();
+    bool canMoveLeft();
+    bool canMoveUp();
+    bool canMoveDown();
+    virtual void doSomething() {}
+    
+private:
+    int walk_direction;
+    bool canGoUp;
+    bool canGoDown;
+    bool canGoLeft;
+    bool canGoRight;
+};
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+class PlayerAvatar: public MovingObject //playerAvatar class to represent Peach and Yoshi because they behave similarly
+{
+public:
+    PlayerAvatar(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth, int number): MovingObject(w, imageID, startX, startY, dir, depth) {
         
         playerNumber = number;
-        walk_direction = right;
         die_roll = 0;
         hasVortex = false;
         ticks_to_Move = 0;
@@ -67,7 +96,6 @@ public:
     virtual void doSomething(); 
     int getCoins() const { return m_Coins; }
     int getStars() const { return m_Stars; }
-    int getWalkDirection() const { return walk_direction; }
     void setCoins(int coins) { m_Coins += coins;}
     void setStars(int stars) {m_Stars +=stars;}
     bool getState() const { return waitingToRoll;}
@@ -77,6 +105,7 @@ public:
     void setWaitingToRollState(bool value) { waitingToRoll = value;}
     void swapCoins(int value) {m_Coins = value;}
     void swapStars(int value) {m_Stars = value;}
+//    int possibleDirections();
     
 private:
     int ticks_to_Move;
@@ -85,7 +114,6 @@ private:
     int m_Stars;
     int playerNumber;
     int die_roll;
-    int walk_direction;
     bool waitingToRoll;
     bool newPlayer;
     Vortex* newVortex;
@@ -172,15 +200,26 @@ public:
         pausedState = true;
         pauseCounter = 180;
         initialTravelDistance = 0;
+        walk_direction = right;
     }
     virtual void doSomething() {return;}
     bool getPausedState() {return pausedState;}
     void setPausedState(bool value) { pausedState = value;}
     void setPauseCounter(int value) {pauseCounter += value;}
+    void resetPauseCounter(int value) {pauseCounter = value;}
+    int getpauseCounter() { return pauseCounter;}
+    int getTickstoMove() {return ticks_to_move;}
+    void setTickstoMove(int value) {ticks_to_move += value;}
+    void setSquarestoMove(int value) {squares_to_move = value; }
+    int getWalkDirection() {return walk_direction;}
+    void setWalkDirection(int value) {walk_direction = value;}
 private:
     bool pausedState;
     int pauseCounter;
     int initialTravelDistance;
+    int ticks_to_move;
+    int squares_to_move;
+    int walk_direction;
 };
 
 class Bowser : public Baddy

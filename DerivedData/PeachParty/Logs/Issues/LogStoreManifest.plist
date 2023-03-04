@@ -6,7 +6,7 @@
 	<integer>10</integer>
 	<key>logs</key>
 	<dict>
-		<key>3344F30F-5797-4E76-926A-0B7B16DA5A94</key>
+		<key>717AB90A-E2E7-4352-BAA6-000CC28613AC</key>
 		<dict>
 			<key>className</key>
 			<string>IDEActivityLogMajorGroupSection</string>
@@ -15,7 +15,7 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.target.product-type.tool</string>
 			<key>fileName</key>
-			<string>3344F30F-5797-4E76-926A-0B7B16DA5A94.xcactivitylog</string>
+			<string>717AB90A-E2E7-4352-BAA6-000CC28613AC.xcactivitylog</string>
 			<key>hasPrimaryLog</key>
 			<true/>
 			<key>primaryObservable</key>
@@ -26,13 +26,13 @@
 			<key>signature</key>
 			<string>PeachParty-cpomsgfxhgqprscgkmffvwoolaqd</string>
 			<key>timeStartedRecording</key>
-			<real>699579975.13629103</real>
+			<real>699604738.80556905</real>
 			<key>timeStoppedRecording</key>
-			<real>699579976.00736105</real>
+			<real>699604740.05368996</real>
 			<key>title</key>
 			<string>Build target PeachParty</string>
 			<key>uniqueIdentifier</key>
-			<string>3344F30F-5797-4E76-926A-0B7B16DA5A94</string>
+			<string>717AB90A-E2E7-4352-BAA6-000CC28613AC</string>
 		</dict>
 	</dict>
 	<key>preserveOldLogs</key>
