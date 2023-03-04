@@ -18,6 +18,7 @@ StudentWorld::StudentWorld(string assetPath)
     b = new Board();
     newVortex = nullptr;
     bankAccountValue = 0;
+    newDroppingSquare = nullptr;
     
 }
 
@@ -95,7 +96,7 @@ int StudentWorld::move()
 {
     // This code is here merely to allow the game to build, run, and terminate after you hit ESC.
  // Notice that the return value GWSTATUS_NOT_IMPLEMENTED will cause our framework to end the game.
-    setGameStatText("P1 Roll: " + to_string(p->getStars()) + " Stars: " + to_string(p->getCoins()) + " $$ VOR:  | Time: " + to_string(timeRemaining()) + " | Bank: " + to_string(getBankAccountValue())+ " | P2 Roll: " + to_string(yoshi->getStars()) + " Stars: " + to_string(yoshi->getCoins()) + " $$ VOR: ");
+    setGameStatText("P1 Roll: " + to_string(p->getStars()) + " Stars: " + to_string(p->getCoins()) + " $$ | Time: " + to_string(timeRemaining()) + " | Bank: " + to_string(getBankAccountValue())+ " | P2 Roll: " + to_string(yoshi->getStars()) + " Stars: " + to_string(yoshi->getCoins()) + " $$");
     
     if (timeRemaining() <= 0) {
         
@@ -218,6 +219,13 @@ void StudentWorld::createVortex(int x, int y)
 {
     newVortex = new Vortex(this, IID_VORTEX, x/SPRITE_WIDTH, y/SPRITE_HEIGHT, 0, 0);
     m_actor.push_back(newVortex);
+}
+
+void StudentWorld::createDroppingSquare(int x, int y)
+{
+    newDroppingSquare = new DroppingSquare(this, IID_DROPPING_SQUARE, x/SPRITE_WIDTH, y/SPRITE_HEIGHT, 0, 0);
+    m_actor.push_back(newDroppingSquare);
+    
 }
 
 bool StudentWorld::isUpDirSquare(int x, int y)

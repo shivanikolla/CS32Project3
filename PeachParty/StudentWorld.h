@@ -30,6 +30,7 @@ public:
     bool isRightDirSquare(int x, int y);
     bool isLeftDirSquare(int x, int y);
     bool isDirectionalSquare(int x, int y);
+    void createDroppingSquare(int x, int y);
     
     PlayerAvatar* getPeach() {return p;}
     PlayerAvatar* getYoshi() {return yoshi;}
@@ -48,6 +49,7 @@ private:
     PlayerAvatar* yoshi; //to keep track of yoshi
     Board* b;
     Vortex* newVortex; //used for dynamically allocating a new vortex
+    DroppingSquare* newDroppingSquare;
     int bankAccountValue;
 };
 

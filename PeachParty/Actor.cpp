@@ -1,71 +1,13 @@
 #include "Actor.h"
 #include "StudentWorld.h"
 #include <iostream>
+#include <vector>
 
 // Students:  Add code to this file, Actor.h, StudentWorld.h, and StudentWorld.cpp
 ////////////////////////////////////////////////////////////
 ///MovingObject Implementations //////
 ///////////////////////////////////////////////////////////
 //
-int MovingObject::possibleMovementDirections()
-{
-    int possibleDirections = 0;
-    
-    if (walk_direction == right) //checking if an object is at a fork
-    {
-        if (!getWorld()->boardisempty(getX()+16, getY())){
-            possibleDirections++;
-        }
-        if (!getWorld()->boardisempty(getX(), getY()-16)) {
-            possibleDirections++;
-        }
-        if (!getWorld()->boardisempty(getX(), getY()+16)) {
-            possibleDirections++;
-        }
-    }
-    else if (walk_direction == left)
-    {
-        if (!getWorld()->boardisempty(getX()-16, getY())) { //left
-            possibleDirections++;
-        }
-        if (!getWorld()->boardisempty(getX(), getY()-16)) {//down
-            possibleDirections++;
-        }
-        if (!getWorld()->boardisempty(getX(), getY()+16)) {//up
-            possibleDirections++;
-        }
-
-    }
-    else if (walk_direction == up)
-    {
-        if (!getWorld()->boardisempty(getX(), getY()+16)) {//up
-            possibleDirections++;
-        }
-        if (!getWorld()->boardisempty(getX()-16, getY())) {//left
-            possibleDirections++;
-        }
-        if (!getWorld()->boardisempty(getX()+16, getY())) { //right
-            possibleDirections++;
-        }
-
-    }
-    else if (walk_direction == down)
-    {
-        if (!getWorld()->boardisempty(getX(), getY()-16)) {
-            possibleDirections++;
-        }
-        if (!getWorld()->boardisempty(getX()+16, getY())) {
-            possibleDirections++;
-        }
-        if (!getWorld()->boardisempty(getX()-16, getY())) {
-            possibleDirections++;
-        }
-    }
-
-    return possibleDirections;
-
-}
-
 bool MovingObject::canMoveRight()
 {
     if (!getWorld()->boardisempty(getX()+16, getY()))
@@ -99,6 +41,135 @@ bool MovingObject::canMoveDown()
     return false;
 }
 
+int MovingObject::possibleMovementDirections()
+{
+    int possibleDirections = 0;
+    
+    if (walk_direction == right) //checking if an object is at a fork
+    {
+        if (canMoveRight()){
+            possibleDirections++;
+        }
+        if (canMoveDown()) {
+            possibleDirections++;
+        }
+        if (canMoveUp()) {
+            possibleDirections++;
+        }
+    }
+    else if (walk_direction == left)
+    {
+        if (canMoveLeft()) { //left
+            possibleDirections++;
+        }
+        if (canMoveDown()) {//down
+            possibleDirections++;
+        }
+        if (canMoveUp()) {//up
+            possibleDirections++;
+        }
+
+    }
+    else if (walk_direction == up)
+    {
+        if (canMoveUp()) {//up
+            possibleDirections++;
+        }
+        if (canMoveLeft()) {//left
+            possibleDirections++;
+        }
+        if (canMoveRight()) { //right
+            possibleDirections++;
+        }
+
+    }
+    else if (walk_direction == down)
+    {
+        if (canMoveDown()) {
+            possibleDirections++;
+        }
+        if (canMoveRight()) {
+            possibleDirections++;
+        }
+        if (canMoveLeft()) {
+            possibleDirections++;
+        }
+    }
+
+    return possibleDirections;
+
+}
+
+void MovingObject::characterAtTurningPoint() //if a character is at a turning point, this function adjusts the direction accordingly
+{
+    int nextX;
+    int nextY;
+    
+    getPositionInThisDirection(getWalkDirection(), 16, nextX, nextY); // get the next square in the current direction
+    
+    switch (getWalkDirection()) {
+        case right:
+        case left:
+         getPositionInThisDirection(up, 16, nextX, nextY); //get the position in the up direction
+            
+             if (!getWorld()->boardisempty(nextX, nextY)) //if it is not empty
+                {
+                    SetWalkDirection(up);
+                    setDirection(0);
+            }
+            else
+            {
+                SetWalkDirection(down);
+                setDirection(0);
+            }
+            break;
+        case up:
+        case down:
+            getPositionInThisDirection(right, 16, nextX, nextY); //right takes priority over left, get position in right direction first
+            
+            if (!getWorld()->boardisempty(nextX, nextY)) //if it is not empty
+            {
+                SetWalkDirection(right);
+                setDirection(0);
+            }
+            else
+            {
+                SetWalkDirection(left);
+                setDirection(180);
+            }
+            break;
+        default:
+            break;
+         }
+
+}
+
+//////////////////////////////////////////////////////
+///Baddy Implementations///////////
+////////////////////////////////////////////////////
+void Baddy::chooseRandomDirection()
+{
+    std::vector<int> possibleDirections;
+
+    if (canMoveRight()) {
+
+        possibleDirections.push_back(0);
+    }
+    if (canMoveLeft()) {
+        possibleDirections.push_back(180);
+    }
+    if (canMoveUp()) {
+        possibleDirections.push_back(90);
+    }
+    if (canMoveDown()) {
+        possibleDirections.push_back(270);
+    }
+    
+    int randomIndex = rand()% possibleDirections.size();
+    SetWalkDirection(possibleDirections[randomIndex]);
+    
+}
+
 ////////////////////////////////////////////////////////////
 ///PlayerAvatar Implementations ////////
 ////////////////////////////////////////////////////////////
@@ -106,6 +177,7 @@ void PlayerAvatar::doSomething()
 {
     bool previousState = false;
     if (waitingToRoll == true) { //if the playeravatar is in the waiting to roll state
+        
         previousState = true;
         
         int action = getWorld()-> getAction(playerNumber);
@@ -156,7 +228,7 @@ void PlayerAvatar::doSomething()
         }
         else { return; }
     }
-
+//--------------------------------------------------------------------------------------------
    if (waitingToRoll == false) //otherwise, if it is in the WALKING state
    {
        
@@ -171,60 +243,52 @@ void PlayerAvatar::doSomething()
            
                if(getWorld()->isRightDirSquare(getX(), getY()))
                {
-//                   walk_direction = right;
                    SetWalkDirection(right);
                    setDirection(0);
                }
            
                else if (getWorld()->isUpDirSquare(getX(), getY()))
                {
-//                   walk_direction = up;
                    SetWalkDirection(up);
                    setDirection(0);
                }
                else if (getWorld()->isDownDirSquare(getX(), getY()))
                {
-//                   walk_direction = down;
                    SetWalkDirection(down);
                    setDirection(0);
                }
                else if (getWorld()->isLeftDirSquare(getX(), getY()))
                {
-//                   walk_direction = left;
                    SetWalkDirection(left);
                    setDirection(180);
                }
            }
        
            
-           else if (possibleMovementDirections() >= 2 && previousState == false) //if possible directions is greater than or equal to 2, that means the object is at a fork
+           else if (possibleMovementDirections() >= 2 && previousState == false) //if possible directions is greater than or equal to 2, that means the object is at a fork and the previousState is not waitingToRoll
            {
                int action = getWorld()->getAction(playerNumber);
                
                if (action == ACTION_RIGHT && canMoveRight() == true)
                {
-//                   walk_direction = right;
                    SetWalkDirection(right);
                    setDirection(0);
                }
                else if (action == ACTION_LEFT && canMoveLeft()== true)
                {
                    SetWalkDirection(left);
-//                   walk_direction = left;
                    setDirection(180);
                    
                }
                else if (action == ACTION_DOWN && canMoveDown() == true)
                {
                    SetWalkDirection(down);
-//                   walk_direction = down;
                    setDirection(0);
                    
                }
                else if (action == ACTION_UP && canMoveUp() == true)
                {
                    SetWalkDirection(up);
-//                   walk_direction = up;
                    setDirection(0);
                }
                else
@@ -234,47 +298,10 @@ void PlayerAvatar::doSomething()
                
            }
        
-       else if (getWorld()->boardisempty(nextX, nextY)) //if it is empty
-       {
-           switch (getWalkDirection()) {
-               case right:
-               case left:
-                getPositionInThisDirection(up, 16, nextX, nextY); //get the position in the up direction
-                   
-                    if (!getWorld()->boardisempty(nextX, nextY)) //if it is not empty
-                       {
-                           SetWalkDirection(up);
-                           setDirection(0);
-                   }
-                   else
-                   {
-                       SetWalkDirection(down);
-//                       walk_direction = down; //otherwise change it to down
-                       setDirection(0);
-                   }
-                   break;
-               case up:
-               case down:
-                   getPositionInThisDirection(right, 16, nextX, nextY); //right takes priority over left, get position in right direction first
-                   
-                   if (!getWorld()->boardisempty(nextX, nextY)) //if it is not empty
-                   {
-                       SetWalkDirection(right);
-//                       walk_direction = right; //set the direction to right
-                       setDirection(0);
-                   }
-                   else
-                   {
-                       SetWalkDirection(left);
-//                       walk_direction = left;
-                       setDirection(180);
-                   }
-                   break;
-               default:
-                   break;
-                }
-           
-            }
+           else if (getWorld()->boardisempty(nextX, nextY)) //if it is empty, its at a turning point
+           {
+               characterAtTurningPoint();
+           }
          
        }
        
@@ -533,10 +560,8 @@ void DroppingSquare::doSomething()
 
 void Bowser::doSomething()
 {
-    bool previousState = false;
     if(getPausedState())
     {
-        previousState = true;
         if (getWorld()->PlayersOnSameSquare(this, getWorld()->getPeach()) && getWorld()->getPeach()->getWaitingToRollState() == true)
         {
             int value = randInt(1, 2);
@@ -561,185 +586,54 @@ void Bowser::doSomething()
         setPauseCounter(-1);
         if (getpauseCounter() == 0)
         {
-            int value = randInt(1, 3);
+            int value = randInt(1, 10);
             setSquarestoMove(value);
-            setTickstoMove(8*value);
-            
-            
-            int randomdirection = randInt(1, 4);
-            int tempdirrection = 0;
+            resetTickstoMove(8*value);
 
-            if (randomdirection == 1) { //assigning the random value to a possible direction
-                tempdirrection = right;
-            }
-            else if (randomdirection == 2) {
-                tempdirrection = up;
-            }
-            else if (randomdirection == 3) {
-                tempdirrection = left;
-            }
-            else if (randomdirection == 4) {
-                tempdirrection = down;
-            }
-            
-
-        setPausedState(false);
+            chooseRandomDirection();
+            setPausedState(false);
         }
         
-    }
+    } //this brace closes of paused state if statement
     
- //------------------------------------------------------------------------
-    if (!getPausedState())
+    if (getPausedState() == false) //meaning Bowser is in the walking state
     {
-        int possibleDirections = 0;
-        bool canGoRight = false;
-        bool canGoLeft= false;
-        bool canGoUp = false;
-        bool canGoDown = false;
-        if (getWalkDirection() == right) //checking if an object is at a fork
-        {
-            if (!getWorld()->boardisempty(getX()+16, getY())){
-                possibleDirections++;
-                canGoRight = true;
-            }
-            if (!getWorld()->boardisempty(getX(), getY()-16)) {
-                possibleDirections++;
-                canGoDown = true;
-            }
-            if (!getWorld()->boardisempty(getX(), getY()+16)) {
-                possibleDirections++;
-                canGoUp = true;
-            }
-        }
-        else if (getWalkDirection() == left)
-        {
-            if (!getWorld()->boardisempty(getX()-16, getY())) { //left
-                possibleDirections++;
-                canGoLeft = true;
-            }
-            if (!getWorld()->boardisempty(getX(), getY()-16)) {//down
-                possibleDirections++;
-                canGoDown = true;
-            }
-            if (!getWorld()->boardisempty(getX(), getY()+16)) {//up
-                possibleDirections++;
-                canGoUp = true;
-            }
-            
-        }
-        else if (getWalkDirection() == up)
-        {
-            if (!getWorld()->boardisempty(getX(), getY()+16)) {//up
-                possibleDirections++;
-                canGoUp = true;
-            }
-            if (!getWorld()->boardisempty(getX()-16, getY())) {//left
-                possibleDirections++;
-                canGoLeft = true;
-            }
-            if (!getWorld()->boardisempty(getX()+16, getY())) { //right
-                possibleDirections++;
-                canGoRight = true;
-            }
-
-        }
-        else if (getWalkDirection() == down)
-        {
-            if (!getWorld()->boardisempty(getX(), getY()-16)) {
-                possibleDirections++;
-                canGoDown = true;
-            }
-            if (!getWorld()->boardisempty(getX()+16, getY())) {
-                possibleDirections++;
-                canGoRight = true;
-            }
-            if (!getWorld()->boardisempty(getX()-16, getY())) {
-                possibleDirections++;
-                canGoLeft = true;
-            }
-        }
         
         int nextX;
         int nextY;
         
         getPositionInThisDirection(getWalkDirection(), 16, nextX, nextY); // get the next square in the current direction
         
-        if (possibleDirections >=2 && previousState == false) //controlling movement at the fork
-        {
-            if (canGoRight == true)
+        if (getX()%16 == 0 && getY()%16 == 0) { //if Bowser is directly on top of a Square
+            
+            if (possibleMovementDirections() >=2) //if Bowser is at a fork
             {
-                setWalkDirection(right);
-                setDirection(0);
-            }
-            else if (canGoLeft == true)
-            {
-                setWalkDirection(left);
-                setDirection(180);
-            }
-            else if (canGoUp == true)
-            {
-                setWalkDirection(up);
-                setDirection(0);
-            }
-            else if (canGoDown == true)
-            {
-                setWalkDirection(down);
-                setDirection(0);
+                chooseRandomDirection();
+                if (getWalkDirection() == left)
+                    setDirection(180);
             }
             
+            else if (getWorld()->boardisempty(nextX, nextY)) //if it is empty
+            {
+                characterAtTurningPoint();
+            }
         }
-        
-        else if (getWorld()->boardisempty(nextX, nextY)) //if it is empty
-        {
-            switch (getWalkDirection()) {
-                case right:
-                case left:
-                 getPositionInThisDirection(up, 16, nextX, nextY); //get the position in the up direction
-                    
-                     if (!getWorld()->boardisempty(nextX, nextY)) //if it is not empty
-                        {
-                            setWalkDirection(up); //change the walk direction to up
-                            setDirection(0);
-                    }
-                    else
-                    {
-                        setWalkDirection(down);//otherwise change it to down
-                        setDirection(0);
-                    }
-                    break;
-                case up:
-                case down:
-                    getPositionInThisDirection(right, 16, nextX, nextY); //right takes priority over left, get position in right direction first
-                    
-                    if (!getWorld()->boardisempty(nextX, nextY)) //if it is not empty
-                    {
-                        setWalkDirection(right); //set the direction to right
-                        setDirection(0);
-                    }
-                    else
-                    {
-                        setWalkDirection(left);
-                        setDirection(180);
-                    }
-                    break;
-                default:
-                    break;
-                 }
-            
-        }
-     
         
         moveAtAngle(getWalkDirection(), 2);
         setTickstoMove(-1);
-        if (getTickstoMove() == 0)
-        {
+        if (getTickstoMove() == 0) {
             setPausedState(true);
             resetPauseCounter(180);
-            
+            int value = randInt(1, 4);
+            if (value == 1) {
+                
+                getWorld()->createDroppingSquare(getX(), getY());
+                getWorld()->playSound(SOUND_DROPPING_SQUARE_CREATED);
+                
+            }
         }
         
-    }
-    
+    } //this brace closes of walking state if statement
     
 }
 
@@ -801,9 +695,55 @@ void Boo::doSomething()
       }
         
         setPauseCounter(-1);
-        setPausedState(false);
+        if (getpauseCounter() == 0)
+        {
+            int value = randInt(1, 3);
+            setSquarestoMove(value);
+            resetTickstoMove(8*value);
+
+            chooseRandomDirection();
+            setPausedState(false);
+        }
+   
     }
     
+/////////////////////////////////////////////////
+   if (!getPausedState())
+   {
+       if (getX()%16 == 0 && getY()%16 == 0) { //if Boo is directly on top of a square
+       
+       int nextX;
+       int nextY;
+       
+       getPositionInThisDirection(getWalkDirection(), 16, nextX, nextY); // get the next square in the current direction
+       
+           if (possibleMovementDirections() >=2) //if Bowser is at a fork
+           {
+               chooseRandomDirection();
+               if (getWalkDirection() == left)
+                   setDirection(180);
+           }
+           
+           else if (getWorld()->boardisempty(nextX, nextY)) //if it is empty
+           {
+               characterAtTurningPoint();
+           }
+    
+           
+       } //this brace closes checking if boo is directly on top of a square
+       
+       moveAtAngle(getWalkDirection(), 2);
+       setTickstoMove(-1);
+       if (getTickstoMove() == 0) {
+           setPausedState(true);
+           resetPauseCounter(180);
+           
+       }
+       
+       
+       
+   }// this brace closes off walking state
+
 }
 
 /////////////////////////////////////////////////////////
@@ -817,18 +757,42 @@ void EventSquare::doSomething()
         int value = randInt(1, 3);
         switch (value) {
             case 1:
+                getWorld()->playSound(SOUND_PLAYER_TELEPORT);
                 break;
             case 2:
+                getWorld()->playSound(SOUND_PLAYER_TELEPORT);
                 break;
                 
             case 3:
+                if (!getWorld()->getPeach()->playerHasVortex()) {
+                    getWorld()->getPeach()->setPlayerVortex(true);
+                }
+                getWorld()->playSound(SOUND_GIVE_VORTEX);
                 break;
         }
         
-        
+    }
+    else if (getWorld()->PlayerLandsOnSquare(this, getWorld()->getYoshi()) && getWorld()->getYoshi()->newPlayerStatus() == true)
+    {
+        int value = randInt(1, 3);
+        switch (value) {
+            case 1:
+                getWorld()->playSound(SOUND_PLAYER_TELEPORT);
+                break;
+            case 2:
+                getWorld()->playSound(SOUND_PLAYER_TELEPORT);
+                break;
+            case 3:
+                if (!getWorld()->getYoshi()->playerHasVortex()) {
+                    getWorld()->getYoshi()->setPlayerVortex(true);
+                }
+                
+                getWorld()->playSound(SOUND_GIVE_VORTEX);
+                break;
+                
+        }
         
     }
-    
     
     
 }

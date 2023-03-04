@@ -67,6 +67,8 @@ public:
     bool canMoveLeft();
     bool canMoveUp();
     bool canMoveDown();
+    void characterAtTurningPoint();
+    void characterAtFork();
     virtual void doSomething() {}
     
 private:
@@ -105,7 +107,8 @@ public:
     void setWaitingToRollState(bool value) { waitingToRoll = value;}
     void swapCoins(int value) {m_Coins = value;}
     void swapStars(int value) {m_Stars = value;}
-//    int possibleDirections();
+    bool playerHasVortex() {return hasVortex;}
+    void setPlayerVortex(bool value) {hasVortex = value;}
     
 private:
     int ticks_to_Move;
@@ -118,6 +121,53 @@ private:
     bool newPlayer;
     Vortex* newVortex;
     
+};
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+class Baddy: public MovingObject
+{
+public:
+    Baddy(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): MovingObject(w, imageID, startX, startY, dir, depth) {
+        pausedState = true;
+        pauseCounter = 180;
+        initialTravelDistance = 0;
+    }
+    virtual void doSomething() {return;}
+    bool getPausedState() {return pausedState;}
+    void setPausedState(bool value) { pausedState = value;}
+    void setPauseCounter(int value) {pauseCounter += value;}
+    void resetPauseCounter(int value) {pauseCounter = value;}
+    int getpauseCounter() { return pauseCounter;}
+    int getTickstoMove() {return ticks_to_move;}
+    void setTickstoMove(int value) {ticks_to_move += value;}
+    void resetTickstoMove (int value) {ticks_to_move = value;}
+    void setSquarestoMove(int value) {squares_to_move = value; }
+    void chooseRandomDirection();
+    
+private:
+    bool pausedState;
+    int pauseCounter;
+    int initialTravelDistance;
+    int ticks_to_move;
+    int squares_to_move;
+};
+
+class Bowser : public Baddy
+{
+public:
+    Bowser(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth) : Baddy(w, imageID, startX, startY, dir, depth) {}
+    virtual void doSomething();
+private:
+    
+};
+
+class Boo: public Baddy
+{
+public:
+    Boo(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth) : Baddy(w, imageID, startX, startY, dir, depth) {}
+    virtual void doSomething();
+private:
 };
 
 //------------------------------------------------------------------------------------------------------------------------------------------------
@@ -191,53 +241,7 @@ public:
 private:
 };
 
-//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-class Baddy: public Actor
-{
-public:
-    Baddy(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Actor(w, imageID, startX, startY, dir, depth) {
-        pausedState = true;
-        pauseCounter = 180;
-        initialTravelDistance = 0;
-        walk_direction = right;
-    }
-    virtual void doSomething() {return;}
-    bool getPausedState() {return pausedState;}
-    void setPausedState(bool value) { pausedState = value;}
-    void setPauseCounter(int value) {pauseCounter += value;}
-    void resetPauseCounter(int value) {pauseCounter = value;}
-    int getpauseCounter() { return pauseCounter;}
-    int getTickstoMove() {return ticks_to_move;}
-    void setTickstoMove(int value) {ticks_to_move += value;}
-    void setSquarestoMove(int value) {squares_to_move = value; }
-    int getWalkDirection() {return walk_direction;}
-    void setWalkDirection(int value) {walk_direction = value;}
-private:
-    bool pausedState;
-    int pauseCounter;
-    int initialTravelDistance;
-    int ticks_to_move;
-    int squares_to_move;
-    int walk_direction;
-};
-
-class Bowser : public Baddy
-{
-public:
-    Bowser(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth) : Baddy(w, imageID, startX, startY, dir, depth) {}
-    virtual void doSomething();
-private:
-    
-};
-
-class Boo: public Baddy
-{
-public:
-    Boo(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth) : Baddy(w, imageID, startX, startY, dir, depth) {}
-    virtual void doSomething();
-private:
-};
 
 
 #endif // ACTOR_H_
