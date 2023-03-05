@@ -2,6 +2,9 @@
 #include "GameConstants.h"
 #include <string>
 #include <vector>
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 using namespace std;
 
 GameWorld* createStudentWorld(string assetPath)
@@ -94,6 +97,10 @@ int StudentWorld::init()
 
 int StudentWorld::move()
 {
+    
+    ostringstream oss;
+    
+    
     setGameStatText("P1 Roll: " + to_string(p->getStars()) + " Stars: " + to_string(p->getCoins()) + " $$ | Time: " + to_string(timeRemaining()) + " | Bank: " + to_string(getBankAccountValue())+ " | P2 Roll: " + to_string(yoshi->getStars()) + " Stars: " + to_string(yoshi->getCoins()) + " $$");
     
     if (timeRemaining() <= 0) {
@@ -213,10 +220,12 @@ bool StudentWorld::hasPlayer(int x, int y)
     return false;
 }
 
-void StudentWorld::createVortex(int x, int y)
+void StudentWorld::createVortex(int x, int y, int walkDirection)
 {
     newVortex = new Vortex(this, IID_VORTEX, x/SPRITE_WIDTH, y/SPRITE_HEIGHT, 0, 0);
     m_actor.push_back(newVortex);
+    
+    vortexWalkDirection = walkDirection;
 }
 
 void StudentWorld::createDroppingSquare(int x, int y)
@@ -306,4 +315,24 @@ bool StudentWorld::PlayersOnSameSquare(Actor* a, Actor* b)
         return true;
     }
     return false;
+}
+
+
+void StudentWorld::randomCoordinateGenerator() //a recursive number generator
+{
+    int x = randInt(0, 255);
+    int y = randInt(0, 255);
+    
+    if (x%16 == 0 && y%16 == 0) {
+    
+    if (b->getContentsOf(x/SPRITE_WIDTH, y/SPRITE_HEIGHT) != Board::empty) {
+        
+        randomX = x;
+        randomY = y;
+        return;
+        }
+    }
+    else {
+        randomCoordinateGenerator();
+    }
 }

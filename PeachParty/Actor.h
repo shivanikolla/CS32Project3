@@ -113,6 +113,7 @@ public:
     void swapPositions(PlayerAvatar* other);
     int returnTickstoMove() const {return ticks_to_Move;}
     void setTickstoMove(int value) {ticks_to_Move =value;}
+    virtual bool can_be_hit_by_vortex() const {return false;}
     
 private:
     int ticks_to_Move;
@@ -221,6 +222,7 @@ public:
     virtual void doSomething();
     virtual bool can_be_hit_by_vortex() const {return false;}
     void swapPositions(PlayerAvatar* a, PlayerAvatar* b);
+    void teleportPlayer(PlayerAvatar* a);
 private:
 };
 

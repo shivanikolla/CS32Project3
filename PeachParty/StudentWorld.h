@@ -24,7 +24,7 @@ public:
   bool isBlueCoinSquare(int x, int y);
     bool isRedCoinSquare(int x, int y);
     bool hasPlayer(int x, int y);
-  void createVortex(int x, int y);
+  void createVortex(int x, int y, int walkDirection);
     bool isUpDirSquare(int x, int y);
     bool isDownDirSquare(int x, int y);
     bool isRightDirSquare(int x, int y);
@@ -40,6 +40,10 @@ public:
     bool PlayersOnSameSquare(Actor* a,Actor* b);
     int getBankAccountValue() { return bankAccountValue;}
     void setBankAccountValue(int value) {bankAccountValue += value; }
+    void randomCoordinateGenerator();
+    int getRandomX() const {return randomX;}
+    int getRandomY() const {return randomY;}
+    int getvortexWalkDirection() {return vortexWalkDirection;}
     
     //actually make two different methods: one that checks if the player has "moved" onto the square and one that checks if the player has "landed" on the square(waiting to roll state equals true
     
@@ -51,6 +55,9 @@ private:
     Vortex* newVortex; //used for dynamically allocating a new vortex
     DroppingSquare* newDroppingSquare;
     int bankAccountValue;
+    int randomX;
+    int randomY;
+    int vortexWalkDirection;
 };
 
 #endif // STUDENTWORLD_H_

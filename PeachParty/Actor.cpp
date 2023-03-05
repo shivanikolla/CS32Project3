@@ -175,6 +175,7 @@ void Baddy::chooseRandomDirection()
 ////////////////////////////////////////////////////////////
 void PlayerAvatar::doSomething()
 {
+    
     bool previousState = false;
     if (waitingToRoll == true) { //if the playeravatar is in the waiting to roll state
         
@@ -198,7 +199,7 @@ void PlayerAvatar::doSomething()
             
             if (!getWorld()->boardisempty(vortexX, vortexY))
             {
-                getWorld()->createVortex(vortexX, vortexY);
+                getWorld()->createVortex(vortexX, vortexY, WalkDirection());
             }
             else if (getWalkDirection() == up)
             {
@@ -206,11 +207,11 @@ void PlayerAvatar::doSomething()
                 
                 if (!getWorld()->boardisempty(switchX, switchY))
                 {
-                    getWorld()->createVortex(switchX, switchY);
+                    getWorld()->createVortex(switchX, switchY, WalkDirection());
                 }
                 else
                 {
-                    getWorld()->createVortex(getX()+16, getY());
+                    getWorld()->createVortex(getX()+16, getY(), WalkDirection());
                 }
             }
             else if (getWalkDirection() == right)
@@ -218,7 +219,7 @@ void PlayerAvatar::doSomething()
                 getPositionInThisDirection(up, 16, switchX, switchY);
                 if (!getWorld()->boardisempty(switchX, switchY))
                 {
-                    getWorld()->createVortex(switchX, switchY);
+                    getWorld()->createVortex(switchX, switchY, WalkDirection());
                 }
             }
 
@@ -768,6 +769,13 @@ void Boo::doSomething()
 /////////////////////////////////////////////////////////
 ///EventSquare Implementations /////
 /////////////////////////////////////////////////////////
+void EventSquare::teleportPlayer(PlayerAvatar* a)
+{
+    getWorld()->randomCoordinateGenerator();
+    a->moveTo(getWorld()->getRandomX(), getWorld()->getRandomY());
+    
+}
+
 void EventSquare::swapPositions(PlayerAvatar* a, PlayerAvatar* b)
 {
     
@@ -806,16 +814,17 @@ void EventSquare::doSomething()
         int value = randInt(1, 3);
         switch (value) {
             case 1:
+                
                 getWorld()->getPeach()->setValidDirection(false);
+                teleportPlayer(getWorld()->getPeach());
                 getWorld()->playSound(SOUND_PLAYER_TELEPORT);
                 break;
             case 2:
-                
+
                 swapPositions(getWorld()->getPeach(), getWorld()->getYoshi());
-                
                 getWorld()->playSound(SOUND_PLAYER_TELEPORT);
                 break;
-                
+
             case 3:
                 if (!getWorld()->getPeach()->playerHasVortex()) {
                     getWorld()->getPeach()->setPlayerVortex(true);
@@ -831,6 +840,7 @@ void EventSquare::doSomething()
         switch (value) {
             case 1:
                 getWorld()->getYoshi()->setValidDirection(false);
+                teleportPlayer(getWorld()->getYoshi());
                 getWorld()->playSound(SOUND_PLAYER_TELEPORT);
                 break;
             case 2:
@@ -842,7 +852,7 @@ void EventSquare::doSomething()
                 if (!getWorld()->getYoshi()->playerHasVortex()) {
                     getWorld()->getYoshi()->setPlayerVortex(true);
                 }
-                
+
                 getWorld()->playSound(SOUND_GIVE_VORTEX);
                 break;
         }
@@ -856,7 +866,14 @@ void EventSquare::doSomething()
 /////////////////////////////////////////////////////
 void Vortex::doSomething()
 {
-    ;
+    if (!stillAlive()){
+        return;;
+    }
+    
+    moveAtAngle(getWorld()->getvortexWalkDirection(), 2);
+    
+    
+    
     
     
 }
