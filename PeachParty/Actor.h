@@ -19,7 +19,7 @@ public:
     virtual void doSomething() = 0; //pure virtual function because we will never actually implement an actor object
     StudentWorld* getWorld() const {  return m_studentWorld; }
     virtual bool can_be_hit_by_vortex() const {return canBeHitByVortex;}
-
+    virtual bool is_a_square() const = 0;
     bool stillAlive() const {return isAlive;}
     void setAliveStatus(bool status) {isAlive= status;}
     
@@ -36,13 +36,13 @@ class Vortex : public Actor //Vortex doesn't share many similarities with any ot
 {
 public:
     Vortex(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Actor(w, imageID, startX, startY, dir, depth) {
-        isActive = true;
     }
     
     virtual void doSomething();
+    virtual bool is_a_square() const { return false;}
+    bool vortexOverlapWithActor(Actor* a);
     
 private:
-    bool isActive;
 
 };
 
@@ -68,6 +68,10 @@ public:
     void characterAtTurningPoint();
     void characterAtFork();
     virtual void doSomething() {}
+    virtual bool is_a_square() const { return false;}
+    int returnTickstoMove() {return ticks_to_move;}
+    void setTickstoMove(int value) {ticks_to_move +=value;}
+    void resetTickstoMove(int value) {ticks_to_move = value;}
     
 private:
     int walk_direction;
@@ -75,11 +79,12 @@ private:
     bool canGoDown;
     bool canGoLeft;
     bool canGoRight;
+    int ticks_to_move;
 };
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-class PlayerAvatar: public MovingObject //playerAvatar class to represent Peach and Yoshi because they behave similarly
+class PlayerAvatar: public MovingObject //playerAvatar class to represent Peach and Yoshi
 {
 public:
     PlayerAvatar(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth, int number): MovingObject(w, imageID, startX, startY, dir, depth) {
@@ -87,7 +92,6 @@ public:
         playerNumber = number;
         die_roll = 0;
         hasVortex = false;
-        ticks_to_Move = 0;
         m_Coins = m_Stars = 0;
         waitingToRoll = true;
         newPlayer = false;
@@ -111,12 +115,10 @@ public:
     bool getValidDirection()const {return validDirection;}
     void setValidDirection(bool value) {validDirection = value;}
     void swapPositions(PlayerAvatar* other);
-    int returnTickstoMove() const {return ticks_to_Move;}
-    void setTickstoMove(int value) {ticks_to_Move =value;}
     virtual bool can_be_hit_by_vortex() const {return false;}
+    virtual bool is_a_square() const { return false;}
     
 private:
-    int ticks_to_Move;
     bool hasVortex;
     int m_Coins;
     int m_Stars;
@@ -146,19 +148,17 @@ public:
     void setPauseCounter(int value) {pauseCounter += value;}
     void resetPauseCounter(int value) {pauseCounter = value;}
     int getpauseCounter() { return pauseCounter;}
-    int getTickstoMove() {return ticks_to_move;}
-    void setTickstoMove(int value) {ticks_to_move += value;}
-    void resetTickstoMove (int value) {ticks_to_move = value;}
     void setSquarestoMove(int value) {squares_to_move = value; }
     void chooseRandomDirection();
     bool getHasActivatedOnPlayer() {return hasActivatedOnPlayer;}
     void setHasActivatedOnPlayer(int value) {hasActivatedOnPlayer = value;}
+    virtual bool is_a_square() const { return false;}
+    void baddyTeleportPlayer(Baddy* a);
     
 private:
     bool pausedState;
     int pauseCounter;
     int initialTravelDistance;
-    int ticks_to_move;
     int squares_to_move;
     bool hasActivatedOnPlayer;
 };
@@ -168,6 +168,7 @@ class Bowser : public Baddy
 public:
     Bowser(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth) : Baddy(w, imageID, startX, startY, dir, depth) {}
     virtual void doSomething();
+    virtual bool is_a_square() const { return false;}
 private:
     
 };
@@ -177,6 +178,7 @@ class Boo: public Baddy
 public:
     Boo(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth) : Baddy(w, imageID, startX, startY, dir, depth) {}
     virtual void doSomething();
+    virtual bool is_a_square() const { return false;}
 private:
 };
 
@@ -188,6 +190,7 @@ public:
     Square(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Actor(w, imageID, startX, startY, dir, depth) {
      
     }
+    virtual bool is_a_square() const { return true;}
     
 private:
   
@@ -200,6 +203,7 @@ public:
     }
     virtual void doSomething();
     virtual bool can_be_hit_by_vortex() const {return false;}
+    virtual bool is_a_square() const { return true;}
     
 private:
     
@@ -211,6 +215,7 @@ public:
     StarSquare(StudentWorld * w, int imageID, int startX, int startY, int dir, int depth) :  Square(w, imageID, startX, startY, dir, depth) {}
     virtual void doSomething();
     virtual bool can_be_hit_by_vortex() const {return false;}
+    virtual bool is_a_square() const { return true;}
 private:
     
 };
@@ -223,6 +228,7 @@ public:
     virtual bool can_be_hit_by_vortex() const {return false;}
     void swapPositions(PlayerAvatar* a, PlayerAvatar* b);
     void teleportPlayer(PlayerAvatar* a);
+    virtual bool is_a_square() const { return true;}
 private:
 };
 
@@ -233,6 +239,7 @@ public:
     }
     virtual void doSomething();
     virtual bool can_be_hit_by_vortex() const {return false;}
+    virtual bool is_a_square() const { return true;}
 private:
 };
 
@@ -242,6 +249,7 @@ public:
     DirectionSquare(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Square(w, imageID, startX, startY, dir, depth) {}
     virtual void doSomething() {}
     virtual bool can_be_hit_by_vortex() const {return false;}
+    virtual bool is_a_square() const { return true;}
 private:
     
 };
@@ -252,6 +260,7 @@ public:
     DroppingSquare(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Square(w, imageID, startX, startY, dir, depth) {}
     virtual void doSomething();
     virtual bool can_be_hit_by_vortex() const {return false;}
+    virtual bool is_a_square() const { return true;}
 private:
 };
 

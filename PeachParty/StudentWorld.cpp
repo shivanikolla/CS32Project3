@@ -21,7 +21,6 @@ StudentWorld::StudentWorld(string assetPath)
     b = new Board();
     newVortex = nullptr;
     bankAccountValue = 0;
-    newDroppingSquare = nullptr;
     
 }
 
@@ -97,28 +96,58 @@ int StudentWorld::init()
 
 int StudentWorld::move()
 {
-    
     ostringstream oss;
     
+    oss.fill('0');
+    oss << "P1 Roll: ";
+    oss << p->returnTickstoMove()/8 << " ";
+    oss << "Stars: ";
+    oss << p->getStars() << " ";
+    oss << "$$: ";
+    oss << p->getCoins() << " |";
+    if (p->playerHasVortex()) {
+        oss << " VOR: ";
+    }
+    oss << " Time: ";
+    oss << timeRemaining() << " |";
+    oss << " Bank: ";
+    oss << getBankAccountValue() << " |";
+    oss << " P2 Roll: ";
+    oss<< yoshi->returnTickstoMove()/8 << " ";
+    oss << "Stars: ";
+    oss << yoshi->getStars() << " ";
+    oss << "$$: ";
+    oss << yoshi->getCoins();
+    if (yoshi->playerHasVortex()) {
+        oss << " VOR: ";
+    }
     
-    setGameStatText("P1 Roll: " + to_string(p->getStars()) + " Stars: " + to_string(p->getCoins()) + " $$ | Time: " + to_string(timeRemaining()) + " | Bank: " + to_string(getBankAccountValue())+ " | P2 Roll: " + to_string(yoshi->getStars()) + " Stars: " + to_string(yoshi->getCoins()) + " $$");
+    setGameStatText(oss.str());
     
     if (timeRemaining() <= 0) {
         
        playSound(SOUND_GAME_FINISHED);
         
-        int peachSum = p->getCoins() + p->getStars();
-        int yoshiSum = yoshi->getCoins() + yoshi->getStars();
-        
-        if (peachSum > yoshiSum) {
+        if (p->getStars() > yoshi->getStars()) {
             
             setFinalScore(p->getStars(), p->getCoins());
             return GWSTATUS_PEACH_WON;
         }
-        else if (yoshiSum > peachSum) {
+        else if (yoshi->getStars() > p->getStars()) {
             
             setFinalScore(yoshi->getStars(), yoshi->getCoins());
             return GWSTATUS_YOSHI_WON;
+        }
+        else if (p->getCoins() > yoshi->getCoins()) {
+            
+            setFinalScore(p->getStars(), p->getCoins());
+            return GWSTATUS_PEACH_WON;
+        }
+        else if (yoshi->getCoins() > p->getCoins()) {
+            
+            setFinalScore(yoshi->getStars(), yoshi->getCoins());
+            return GWSTATUS_YOSHI_WON;
+            
         }
         else
         {
@@ -140,18 +169,19 @@ int StudentWorld::move()
         yoshi->doSomething();
         p->doSomething();
     }
-
-    for (int i = 0; i <m_actor.size(); i++){
+    
+    for (vector<Actor*>::iterator it = m_actor.begin(); it != m_actor.end(); it++) {
         
-        if (m_actor[i]->stillAlive() == true) {
-            m_actor[i]->doSomething();
-            
+        if ((*it)->stillAlive()) {
+            (*it)->doSomething();
         }
-        else
+        else if ((*it)->stillAlive() == false)
         {
-            delete m_actor[i];
-            m_actor.clear();
+            delete (*it);
+            m_actor.erase(it);
+            it = m_actor.begin();
         }
+        
     }
     
     return GWSTATUS_CONTINUE_GAME;
@@ -230,8 +260,17 @@ void StudentWorld::createVortex(int x, int y, int walkDirection)
 
 void StudentWorld::createDroppingSquare(int x, int y)
 {
-    newDroppingSquare = new DroppingSquare(this, IID_DROPPING_SQUARE, x/SPRITE_WIDTH, y/SPRITE_HEIGHT, 0, 1);
-    m_actor.push_back(newDroppingSquare);
+    for (vector<Actor*>::iterator it = m_actor.begin(); it != m_actor.end(); it++) {
+        
+        if ((*it)->getX() == x && (*it)->getY() == y && (*it)->is_a_square()) {
+            
+            delete (*it);
+            m_actor.erase(it);
+            it = m_actor.begin();
+        }
+    }
+    
+    m_actor.push_back( new DroppingSquare(this, IID_DROPPING_SQUARE, x/SPRITE_WIDTH, y/SPRITE_HEIGHT, 0, 1));
     
 }
 
@@ -334,5 +373,27 @@ void StudentWorld::randomCoordinateGenerator() //a recursive number generator
     }
     else {
         randomCoordinateGenerator();
+    }
+}
+
+void StudentWorld::objectOverlapwithVortex(Vortex* v)
+{
+//    for (vector<Actor*>::iterator it = m_actor.begin(); it != m_actor.end(); it++)
+//    {
+//        if ((*it)->getX() +SPRITE_WIDTH)
+//
+//
+//
+//    }
+
+}
+
+void StudentWorld::teleportBaddy(Baddy* b)
+{
+    randomCoordinateGenerator();
+    if (!boardisempty(getRandomX(), getRandomY())) {
+        
+        b->moveTo(getRandomX(), getRandomY());
+        
     }
 }

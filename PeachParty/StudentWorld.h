@@ -44,8 +44,8 @@ public:
     int getRandomX() const {return randomX;}
     int getRandomY() const {return randomY;}
     int getvortexWalkDirection() {return vortexWalkDirection;}
-    
-    //actually make two different methods: one that checks if the player has "moved" onto the square and one that checks if the player has "landed" on the square(waiting to roll state equals true
+    void objectOverlapwithVortex(Vortex* v);
+    void teleportBaddy(Baddy* b);
     
 private:
     std::vector<Actor*> m_actor;
@@ -53,7 +53,6 @@ private:
     PlayerAvatar* yoshi; //to keep track of yoshi
     Board* b;
     Vortex* newVortex; //used for dynamically allocating a new vortex
-    DroppingSquare* newDroppingSquare;
     int bankAccountValue;
     int randomX;
     int randomY;
