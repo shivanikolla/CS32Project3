@@ -1,13 +1,10 @@
 #include "Actor.h"
 #include "StudentWorld.h"
 #include <iostream>
-#include <vector>
 
-// Students:  Add code to this file, Actor.h, StudentWorld.h, and StudentWorld.cpp
 ////////////////////////////////////////////////////////////
 ///MovingObject Implementations //////
 ///////////////////////////////////////////////////////////
-//
 bool MovingObject::canMoveRight()
 {
     if (!getWorld()->boardisempty(getX()+16, getY()))
@@ -87,7 +84,7 @@ int MovingObject::possibleMovementDirections() //function that will help determi
     return possibleDirections;
 }
 
-void MovingObject::characterAtTurningPoint() //if a character is at a turning point, this function adjusts the direction accordingly
+void MovingObject::characterAtTurningPoint() //if a playerAvatar is at a turning point, this function adjusts the direction accordingly
 {
     int nextX;
     int nextY;
@@ -150,18 +147,6 @@ void Baddy::chooseRandomDirection()
     }
     int randomIndex = rand()% possibleDirections.size();
     SetWalkDirection(possibleDirections[randomIndex]);
-    
-}
-
-void Baddy::baddyTeleportPlayer(Baddy* a)
-{
-    
-    getWorld()->randomCoordinateGenerator();
-    
-    if (!getWorld()->boardisempty(getWorld()->getRandomX(), getWorld()->getRandomY())) {
-    
-    a->moveTo(getWorld()->getRandomX(), getWorld()->getRandomY());
-    }
     
 }
 
@@ -461,7 +446,6 @@ void BankSquare::doSomething()
         }
         else
         {
-            
             getWorld()->getPeach()->setCoins(-5);
             getWorld()->setBankAccountValue(5);
         }
@@ -482,7 +466,6 @@ void BankSquare::doSomething()
             getWorld()->getYoshi()->setCoins(-5);
             getWorld()->setBankAccountValue(5);
         }
-
         getWorld()->playSound(SOUND_DEPOSIT_BANK);
 
     }

@@ -45,14 +45,14 @@ public:
     int getRandomY() const {return randomY;}
     int getvortexWalkDirection() {return vortexWalkDirection;}
     void objectOverlapwithVortex(Vortex* v);
-    void teleportBaddy(Baddy* b);
+    void teleportBaddy(Actor* b);
+//    void setBaddyPausedStateAfterTeleporting(Baddy* b);
     
 private:
     std::vector<Actor*> m_actor;
     PlayerAvatar* p; //to keep track of peach
     PlayerAvatar* yoshi; //to keep track of yoshi
     Board* b;
-    Vortex* newVortex; //used for dynamically allocating a new vortex
     int bankAccountValue;
     int randomX;
     int randomY;

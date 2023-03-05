@@ -153,7 +153,6 @@ public:
     bool getHasActivatedOnPlayer() {return hasActivatedOnPlayer;}
     void setHasActivatedOnPlayer(int value) {hasActivatedOnPlayer = value;}
     virtual bool is_a_square() const { return false;}
-    void baddyTeleportPlayer(Baddy* a);
     
 private:
     bool pausedState;

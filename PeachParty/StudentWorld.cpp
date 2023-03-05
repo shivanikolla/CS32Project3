@@ -19,7 +19,6 @@ StudentWorld::StudentWorld(string assetPath)
     p = nullptr;
     yoshi = nullptr;
     b = new Board();
-    newVortex = nullptr;
     bankAccountValue = 0;
     
 }
@@ -90,7 +89,7 @@ int StudentWorld::init()
         }
     }
     
-    startCountdownTimer(99);
+    startCountdownTimer(300);
     return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -252,8 +251,8 @@ bool StudentWorld::hasPlayer(int x, int y)
 
 void StudentWorld::createVortex(int x, int y, int walkDirection)
 {
-    newVortex = new Vortex(this, IID_VORTEX, x/SPRITE_WIDTH, y/SPRITE_HEIGHT, 0, 0);
-    m_actor.push_back(newVortex);
+    
+    m_actor.push_back(new Vortex(this, IID_VORTEX, x/SPRITE_WIDTH, y/SPRITE_HEIGHT, 0, 0));
     
     vortexWalkDirection = walkDirection;
 }
@@ -357,13 +356,11 @@ bool StudentWorld::PlayersOnSameSquare(Actor* a, Actor* b)
 }
 
 
-void StudentWorld::randomCoordinateGenerator() //a recursive number generator
+void StudentWorld::randomCoordinateGenerator() //a recursive random coordinate number generator
 {
     int x = randInt(0, 255);
     int y = randInt(0, 255);
-    
     if (x%16 == 0 && y%16 == 0) {
-    
     if (b->getContentsOf(x/SPRITE_WIDTH, y/SPRITE_HEIGHT) != Board::empty) {
         
         randomX = x;
@@ -371,24 +368,12 @@ void StudentWorld::randomCoordinateGenerator() //a recursive number generator
         return;
         }
     }
-    else {
+    else
         randomCoordinateGenerator();
-    }
+    
 }
 
-void StudentWorld::objectOverlapwithVortex(Vortex* v)
-{
-//    for (vector<Actor*>::iterator it = m_actor.begin(); it != m_actor.end(); it++)
-//    {
-//        if ((*it)->getX() +SPRITE_WIDTH)
-//
-//
-//
-//    }
-
-}
-
-void StudentWorld::teleportBaddy(Baddy* b)
+void StudentWorld::teleportBaddy(Actor* b)
 {
     randomCoordinateGenerator();
     if (!boardisempty(getRandomX(), getRandomY())) {
@@ -397,3 +382,23 @@ void StudentWorld::teleportBaddy(Baddy* b)
         
     }
 }
+
+void StudentWorld::objectOverlapwithVortex(Vortex* v)
+{
+    for (vector<Actor*>::iterator it = m_actor.begin(); it != m_actor.end(); it++)
+    {
+        if ((*it)->can_be_hit_by_vortex()) {
+            if (v->getX() + SPRITE_WIDTH > (*it)->getX() && v->getX() < (*it)->getX()+SPRITE_WIDTH)
+            {
+                teleportBaddy((*it));
+            }
+            
+            else if (v->getY() + SPRITE_HEIGHT > (*it)->getY() && v->getY() < (*it)->getY()+SPRITE_HEIGHT)
+            {
+                    teleportBaddy((*it));
+            }
+            
+        }
+    }
+}
+
