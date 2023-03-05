@@ -94,8 +94,6 @@ int StudentWorld::init()
 
 int StudentWorld::move()
 {
-    // This code is here merely to allow the game to build, run, and terminate after you hit ESC.
- // Notice that the return value GWSTATUS_NOT_IMPLEMENTED will cause our framework to end the game.
     setGameStatText("P1 Roll: " + to_string(p->getStars()) + " Stars: " + to_string(p->getCoins()) + " $$ | Time: " + to_string(timeRemaining()) + " | Bank: " + to_string(getBankAccountValue())+ " | P2 Roll: " + to_string(yoshi->getStars()) + " Stars: " + to_string(yoshi->getCoins()) + " $$");
     
     if (timeRemaining() <= 0) {
@@ -223,7 +221,7 @@ void StudentWorld::createVortex(int x, int y)
 
 void StudentWorld::createDroppingSquare(int x, int y)
 {
-    newDroppingSquare = new DroppingSquare(this, IID_DROPPING_SQUARE, x/SPRITE_WIDTH, y/SPRITE_HEIGHT, 0, 0);
+    newDroppingSquare = new DroppingSquare(this, IID_DROPPING_SQUARE, x/SPRITE_WIDTH, y/SPRITE_HEIGHT, 0, 1);
     m_actor.push_back(newDroppingSquare);
     
 }

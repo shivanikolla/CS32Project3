@@ -41,11 +41,11 @@ bool MovingObject::canMoveDown()
     return false;
 }
 
-int MovingObject::possibleMovementDirections()
+int MovingObject::possibleMovementDirections() //function that will help determine if a character is at a fork
 {
     int possibleDirections = 0;
     
-    if (walk_direction == right) //checking if an object is at a fork
+    if (walk_direction == right)
     {
         if (canMoveRight()){
             possibleDirections++;
@@ -267,7 +267,7 @@ void PlayerAvatar::doSomething()
            
            else if (possibleMovementDirections() >= 2 && previousState == false) //if possible directions is greater than or equal to 2, that means the object is at a fork and the previousState is not waitingToRoll
            {
-               int action = getWorld()->getAction(playerNumber);
+               int action = getWorld()->getAction(playerNumber); //getting user input
                
                if (action == ACTION_RIGHT && canMoveRight() == true)
                {
@@ -278,7 +278,6 @@ void PlayerAvatar::doSomething()
                {
                    SetWalkDirection(left);
                    setDirection(180);
-                   
                }
                else if (action == ACTION_DOWN && canMoveDown() == true)
                {
@@ -320,7 +319,7 @@ void PlayerAvatar::doSomething()
 
 void CoinSquare::doSomething()
 {
-    if (!isSquareActive())
+    if (!stillAlive())
         {return;}
   
     if (getX()%16 == 0 && getY()%16 == 0){
@@ -373,7 +372,7 @@ void CoinSquare::doSomething()
             getWorld()->playSound(SOUND_TAKE_COIN);
         }
     }
-}
+  }
 
 }
 
@@ -383,9 +382,10 @@ void CoinSquare::doSomething()
 
 void StarSquare::doSomething()
 {
-    
     //checking Peach first
     if (getWorld()->PlayerLandsOnSquare(this, getWorld()->getPeach()) || getWorld()->PlayerMovesOnSquare(this, getWorld()->getPeach())) {
+        
+        if (getWorld()->getPeach()->newPlayerStatus()) {
         
         getWorld()->getPeach()->setNewPlayerstatus(false);
         
@@ -400,10 +400,14 @@ void StarSquare::doSomething()
             getWorld()->playSound(SOUND_GIVE_STAR);
             
         }
+            
+        }
     }
     
     else if (getWorld()->PlayerLandsOnSquare(this, getWorld()->getYoshi()) || getWorld()->PlayerMovesOnSquare(this, getWorld()->getYoshi()))
     {
+        if (getWorld()->getYoshi()->newPlayerStatus()) {
+        
         getWorld()->getYoshi()->setNewPlayerstatus(false);
         
         if (getWorld()->getYoshi()->getCoins() < 20)
@@ -416,6 +420,7 @@ void StarSquare::doSomething()
             getWorld()->getYoshi()->setStars(1);
             getWorld()->playSound(SOUND_GIVE_STAR);
             
+        }
         }
     }
   
@@ -495,6 +500,8 @@ void DroppingSquare::doSomething()
     
     if (getWorld()->PlayerLandsOnSquare(this, getWorld()->getPeach()) && getWorld()->getPeach()->newPlayerStatus() == true)
     {
+        getWorld()->getPeach()->setNewPlayerstatus(false);
+        
         int value = randInt(1, 2);
         int playerCoins = getWorld()->getPeach()->getCoins();
         int playerStars = getWorld()->getPeach()->getStars();
@@ -522,6 +529,7 @@ void DroppingSquare::doSomething()
     }
     else if (getWorld()->PlayerLandsOnSquare(this, getWorld()->getYoshi()) && getWorld()->getYoshi()->newPlayerStatus() == true)
     {
+        getWorld()->getYoshi()->setNewPlayerstatus(false);
         
         int value = randInt(1, 2);
         int playerCoins = getWorld()->getYoshi()->getCoins();
@@ -565,8 +573,9 @@ void Bowser::doSomething()
         if (getWorld()->PlayersOnSameSquare(this, getWorld()->getPeach()) && getWorld()->getPeach()->getWaitingToRollState() == true)
         {
             int value = randInt(1, 2);
-            if (value == 1)
+            if (value == 1 && getHasActivatedOnPlayer() == false)
             {
+                setHasActivatedOnPlayer(true);
                 getWorld()->getPeach()->swapCoins(0);
                 getWorld()->getPeach()->swapStars(0);
                 getWorld()->playSound(SOUND_BOWSER_ACTIVATE);
@@ -576,7 +585,9 @@ void Bowser::doSomething()
         else if (getWorld()->PlayersOnSameSquare(this, getWorld()->getYoshi()) && getWorld()->getYoshi()->getWaitingToRollState() == true)
         {
             int value = randInt(1, 2);
-            if (value == 1) {
+            if (value == 1 && getHasActivatedOnPlayer() == false) {
+                
+                setHasActivatedOnPlayer(true);
                 getWorld()->getYoshi()->swapCoins(0);
                 getWorld()->getYoshi()->swapStars(0);
                 getWorld()->playSound(SOUND_BOWSER_ACTIVATE);
@@ -589,7 +600,7 @@ void Bowser::doSomething()
             int value = randInt(1, 10);
             setSquarestoMove(value);
             resetTickstoMove(8*value);
-
+            
             chooseRandomDirection();
             setPausedState(false);
         }
@@ -622,6 +633,8 @@ void Bowser::doSomething()
         moveAtAngle(getWalkDirection(), 2);
         setTickstoMove(-1);
         if (getTickstoMove() == 0) {
+            
+            setHasActivatedOnPlayer(false);
             setPausedState(true);
             resetPauseCounter(180);
             int value = randInt(1, 4);
@@ -648,16 +661,18 @@ void Boo::doSomething()
         if (getWorld()->PlayersOnSameSquare(this, getWorld()->getPeach()) && getWorld()->getPeach()->getWaitingToRollState() == true) //checking if Peach and Boo are on the same square first
         {
             int value = randInt(1, 2);
-            if (value == 1)
+            if (value == 1 && getHasActivatedOnPlayer() == false)
             {
+                setHasActivatedOnPlayer(true);
                 int Peachvalue = getWorld()->getPeach()->getCoins();
                 int Yoshivalue = getWorld()->getYoshi()->getCoins();
                 getWorld()->getPeach()->swapCoins(Yoshivalue);
                 getWorld()->getYoshi()->swapCoins(Peachvalue);
                 
             }
-            else if (value == 2)
+            else if (value == 2 && getHasActivatedOnPlayer() == false)
             {
+                setHasActivatedOnPlayer(true);
                 int PeachValue = getWorld()->getPeach()->getStars();
                 int YoshiValue = getWorld()->getYoshi()->getStars();
                 
@@ -672,16 +687,18 @@ void Boo::doSomething()
       {
           
           int value = randInt(1, 2);
-          if (value == 1)
+          if (value == 1  && getHasActivatedOnPlayer() == false)
           {
+              setHasActivatedOnPlayer(true);
               int Peachvalue = getWorld()->getPeach()->getCoins();
               int Yoshivalue = getWorld()->getYoshi()->getCoins();
               getWorld()->getPeach()->swapCoins(Yoshivalue);
               getWorld()->getYoshi()->swapCoins(Peachvalue);
               
           }
-          else if (value == 2)
+          else if (value == 2  && getHasActivatedOnPlayer() == false)
           {
+              setHasActivatedOnPlayer(true);
               int PeachValue = getWorld()->getPeach()->getStars();
               int YoshiValue = getWorld()->getYoshi()->getStars();
               
@@ -735,6 +752,8 @@ void Boo::doSomething()
        moveAtAngle(getWalkDirection(), 2);
        setTickstoMove(-1);
        if (getTickstoMove() == 0) {
+           
+           setHasActivatedOnPlayer(false);
            setPausedState(true);
            resetPauseCounter(180);
            
@@ -749,6 +768,36 @@ void Boo::doSomething()
 /////////////////////////////////////////////////////////
 ///EventSquare Implementations /////
 /////////////////////////////////////////////////////////
+void EventSquare::swapPositions(PlayerAvatar* a, PlayerAvatar* b)
+{
+    
+    int tempAx = a->getX();
+    int tempAy = a->getY();
+    
+    int tempBx = b->getX();
+    int tempBy = b->getY();
+    
+    a->moveTo(tempBx, tempBy);
+    b->moveTo(tempAx, tempAy);
+
+    int tempTicks = a->returnTickstoMove();
+    a->setTickstoMove(b->returnTickstoMove());
+    b->setTickstoMove(tempTicks);
+    
+    int tempWalkDirection = a->WalkDirection();
+    a->SetWalkDirection(b->getWalkDirection());
+    b->SetWalkDirection(tempWalkDirection);
+    
+    int tempSpriteDirection = a->getDirection();
+    a->setDirection(b->getDirection());
+    b->setDirection(tempSpriteDirection);
+    
+    bool tempRollState = a->getWaitingToRollState();
+    a->setWaitingToRollState(b->getWaitingToRollState());
+    b->setWaitingToRollState(tempRollState);
+    
+}
+
 void EventSquare::doSomething()
 {
     
@@ -757,9 +806,13 @@ void EventSquare::doSomething()
         int value = randInt(1, 3);
         switch (value) {
             case 1:
+                getWorld()->getPeach()->setValidDirection(false);
                 getWorld()->playSound(SOUND_PLAYER_TELEPORT);
                 break;
             case 2:
+                
+                swapPositions(getWorld()->getPeach(), getWorld()->getYoshi());
+                
                 getWorld()->playSound(SOUND_PLAYER_TELEPORT);
                 break;
                 
@@ -777,9 +830,12 @@ void EventSquare::doSomething()
         int value = randInt(1, 3);
         switch (value) {
             case 1:
+                getWorld()->getYoshi()->setValidDirection(false);
                 getWorld()->playSound(SOUND_PLAYER_TELEPORT);
                 break;
             case 2:
+                
+                swapPositions(getWorld()->getPeach(), getWorld()->getYoshi());
                 getWorld()->playSound(SOUND_PLAYER_TELEPORT);
                 break;
             case 3:
@@ -789,10 +845,18 @@ void EventSquare::doSomething()
                 
                 getWorld()->playSound(SOUND_GIVE_VORTEX);
                 break;
-                
         }
         
     }
+    
+}
+
+//////////////////////////////////////////////////////
+///Vortex Implementations ////////////
+/////////////////////////////////////////////////////
+void Vortex::doSomething()
+{
+    ;
     
     
 }

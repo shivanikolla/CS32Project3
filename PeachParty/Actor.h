@@ -18,11 +18,8 @@ public:
     
     virtual void doSomething() = 0; //pure virtual function because we will never actually implement an actor object
     StudentWorld* getWorld() const {  return m_studentWorld; }
-//    virtual bool is_a_square() const = 0;
-//    virtual bool can_be_hit_by_vortex() const;
-//    bool is_active() const;
-    
-    
+    virtual bool can_be_hit_by_vortex() const {return canBeHitByVortex;}
+
     bool stillAlive() const {return isAlive;}
     void setAliveStatus(bool status) {isAlive= status;}
     
@@ -30,6 +27,7 @@ public:
 private:
     StudentWorld* m_studentWorld;
     bool isAlive;
+    bool canBeHitByVortex;
 };
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -41,7 +39,7 @@ public:
         isActive = true;
     }
     
-    virtual void doSomething(){}
+    virtual void doSomething();
     
 private:
     bool isActive;
@@ -93,6 +91,7 @@ public:
         m_Coins = m_Stars = 0;
         waitingToRoll = true;
         newPlayer = false;
+        validDirection = true;
     }
     
     virtual void doSomething(); 
@@ -109,6 +108,11 @@ public:
     void swapStars(int value) {m_Stars = value;}
     bool playerHasVortex() {return hasVortex;}
     void setPlayerVortex(bool value) {hasVortex = value;}
+    bool getValidDirection()const {return validDirection;}
+    void setValidDirection(bool value) {validDirection = value;}
+    void swapPositions(PlayerAvatar* other);
+    int returnTickstoMove() const {return ticks_to_Move;}
+    void setTickstoMove(int value) {ticks_to_Move =value;}
     
 private:
     int ticks_to_Move;
@@ -119,6 +123,7 @@ private:
     int die_roll;
     bool waitingToRoll;
     bool newPlayer;
+    bool validDirection;
     Vortex* newVortex;
     
 };
@@ -132,6 +137,7 @@ public:
         pausedState = true;
         pauseCounter = 180;
         initialTravelDistance = 0;
+        hasActivatedOnPlayer = false;
     }
     virtual void doSomething() {return;}
     bool getPausedState() {return pausedState;}
@@ -144,6 +150,8 @@ public:
     void resetTickstoMove (int value) {ticks_to_move = value;}
     void setSquarestoMove(int value) {squares_to_move = value; }
     void chooseRandomDirection();
+    bool getHasActivatedOnPlayer() {return hasActivatedOnPlayer;}
+    void setHasActivatedOnPlayer(int value) {hasActivatedOnPlayer = value;}
     
 private:
     bool pausedState;
@@ -151,6 +159,7 @@ private:
     int initialTravelDistance;
     int ticks_to_move;
     int squares_to_move;
+    bool hasActivatedOnPlayer;
 };
 
 class Bowser : public Baddy
@@ -176,12 +185,11 @@ class Square: public Actor //Base class that all squares are derived from
 public:
     virtual void doSomething() {return;}
     Square(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Actor(w, imageID, startX, startY, dir, depth) {
-        isActive = true;
+     
     }
-    bool isSquareActive() {return isActive;}
     
 private:
-    bool isActive;
+  
 };
 
 class CoinSquare: public Square
@@ -190,6 +198,7 @@ public:
     CoinSquare(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Square (w, imageID, startX, startY, dir, depth) {
     }
     virtual void doSomething();
+    virtual bool can_be_hit_by_vortex() const {return false;}
     
 private:
     
@@ -200,6 +209,7 @@ class StarSquare: public Square
 public:
     StarSquare(StudentWorld * w, int imageID, int startX, int startY, int dir, int depth) :  Square(w, imageID, startX, startY, dir, depth) {}
     virtual void doSomething();
+    virtual bool can_be_hit_by_vortex() const {return false;}
 private:
     
 };
@@ -209,7 +219,8 @@ class EventSquare : public Square
 public:
     EventSquare(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth) : Square(w, imageID, startX, startY, dir, depth) {}
     virtual void doSomething();
-
+    virtual bool can_be_hit_by_vortex() const {return false;}
+    void swapPositions(PlayerAvatar* a, PlayerAvatar* b);
 private:
 };
 
@@ -219,6 +230,7 @@ public:
     BankSquare(StudentWorld * w, int imageID, int startX, int startY, int dir, int depth) :  Square(w, imageID, startX, startY, dir, depth) {
     }
     virtual void doSomething();
+    virtual bool can_be_hit_by_vortex() const {return false;}
 private:
 };
 
@@ -227,7 +239,7 @@ class DirectionSquare: public Square
 public:
     DirectionSquare(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Square(w, imageID, startX, startY, dir, depth) {}
     virtual void doSomething() {}
-    
+    virtual bool can_be_hit_by_vortex() const {return false;}
 private:
     
 };
@@ -237,7 +249,7 @@ class DroppingSquare: public Square
 public:
     DroppingSquare(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth): Square(w, imageID, startX, startY, dir, depth) {}
     virtual void doSomething();
-    
+    virtual bool can_be_hit_by_vortex() const {return false;}
 private:
 };
 
