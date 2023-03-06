@@ -18,11 +18,10 @@ public:
     
     virtual void doSomething() = 0; //pure virtual function because we will never actually implement an actor object
     StudentWorld* getWorld() const {  return m_studentWorld; }
-    virtual bool can_be_hit_by_vortex() const {return canBeHitByVortex;}
+    virtual bool can_be_hit_by_vortex() const = 0;
     virtual bool is_a_square() const = 0;
     bool stillAlive() const {return isAlive;}
     void setAliveStatus(bool status) {isAlive= status;}
-    
     
 private:
     StudentWorld* m_studentWorld;
@@ -40,7 +39,7 @@ public:
     
     virtual void doSomething();
     virtual bool is_a_square() const { return false;}
-    bool vortexOverlapWithActor(Actor* a);
+    virtual bool can_be_hit_by_vortex() const {return false;}
     
 private:
 
@@ -72,6 +71,7 @@ public:
     int returnTickstoMove() {return ticks_to_move;}
     void setTickstoMove(int value) {ticks_to_move +=value;}
     void resetTickstoMove(int value) {ticks_to_move = value;}
+    virtual bool can_be_hit_by_vortex() const {return false;}
     
 private:
     int walk_direction;
@@ -127,7 +127,6 @@ private:
     bool waitingToRoll;
     bool newPlayer;
     bool validDirection;
-    Vortex* newVortex;
     
 };
 
@@ -142,7 +141,7 @@ public:
         initialTravelDistance = 0;
         hasActivatedOnPlayer = false;
     }
-    virtual void doSomething() {return;}
+    virtual void doSomething();
     bool getPausedState() {return pausedState;}
     void setPausedState(bool value) { pausedState = value;}
     void setPauseCounter(int value) {pauseCounter += value;}
@@ -153,9 +152,11 @@ public:
     bool getHasActivatedOnPlayer() {return hasActivatedOnPlayer;}
     void setHasActivatedOnPlayer(int value) {hasActivatedOnPlayer = value;}
     virtual bool is_a_square() const { return false;}
+    virtual bool can_be_hit_by_vortex() const {return true;}
+    void baddyInWalkingState();
     
 private:
-    bool pausedState;
+    bool pausedState; //I opted to create another paused state boolean for Baddy to avoid confusion with waitingtoRoll and walkingState of playerAvatar instead of creating a common one in MovingObject
     int pauseCounter;
     int initialTravelDistance;
     int squares_to_move;
@@ -168,6 +169,7 @@ public:
     Bowser(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth) : Baddy(w, imageID, startX, startY, dir, depth) {}
     virtual void doSomething();
     virtual bool is_a_square() const { return false;}
+    virtual bool can_be_hit_by_vortex() const {return true;}
 private:
     
 };
@@ -178,11 +180,12 @@ public:
     Boo(StudentWorld* w, int imageID, int startX, int startY, int dir, int depth) : Baddy(w, imageID, startX, startY, dir, depth) {}
     virtual void doSomething();
     virtual bool is_a_square() const { return false;}
+    virtual bool can_be_hit_by_vortex() const {return true;}
 private:
 };
 
 //------------------------------------------------------------------------------------------------------------------------------------------------
-class Square: public Actor //Base class that all squares are derived from
+class Square: public Actor //Base class that all squares are derived from, useful in student world when determing whether players moved on to or landed on a square
 {
 public:
     virtual void doSomething() {return;}
@@ -190,6 +193,7 @@ public:
      
     }
     virtual bool is_a_square() const { return true;}
+    virtual bool can_be_hit_by_vortex() const {return false;}
     
 private:
   
@@ -262,9 +266,6 @@ public:
     virtual bool is_a_square() const { return true;}
 private:
 };
-
-
-
 
 #endif // ACTOR_H_
 

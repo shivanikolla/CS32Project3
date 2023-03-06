@@ -1,10 +1,6 @@
 #include "Actor.h"
 #include "StudentWorld.h"
 #include <iostream>
-
-////////////////////////////////////////////////////////////
-///MovingObject Implementations //////
-///////////////////////////////////////////////////////////
 bool MovingObject::canMoveRight()
 {
     if (!getWorld()->boardisempty(getX()+16, getY()))
@@ -33,7 +29,7 @@ bool MovingObject::canMoveDown()
     return false;
 }
 
-int MovingObject::possibleMovementDirections() //function that will help determine if a character is at a fork
+int MovingObject::possibleMovementDirections() //function that will help determine if a character is at a fork, useful for Boswer, Boo, and PlayerAvatar
 {
     int possibleDirections = 0;
     if (walk_direction == right) {
@@ -84,7 +80,7 @@ int MovingObject::possibleMovementDirections() //function that will help determi
     return possibleDirections;
 }
 
-void MovingObject::characterAtTurningPoint() //if a playerAvatar is at a turning point, this function adjusts the direction accordingly
+void MovingObject::characterAtTurningPoint() //if a MovingObject is at a turning point, this function adjusts the direction accordingly
 {
     int nextX;
     int nextY;
@@ -150,6 +146,45 @@ void Baddy::chooseRandomDirection()
     
 }
 
+void Baddy::doSomething()
+{
+    if (getWorld()->getBaddyHasBeenTeleported()) {
+        SetWalkDirection(right);
+        setDirection(0);
+        setPausedState(true);
+        resetPauseCounter(180);
+        getWorld()->setBaddyHasBeenTeleported(false);
+    }
+    
+}
+
+void Baddy::baddyInWalkingState()
+{
+    if (!getPausedState()) //meaning Baddy is in the walking state
+    {
+        int nextX;
+        int nextY;
+        
+        getPositionInThisDirection(getWalkDirection(), 16, nextX, nextY); // get the next square in the current direction
+        
+        if (getX()%16 == 0 && getY()%16 == 0) { //if Bowser is directly on top of a Square
+            
+            if (possibleMovementDirections() >=2) //if Bowser is at a fork
+            {
+                chooseRandomDirection();
+                if (getWalkDirection() == left)
+                    setDirection(180);
+            }
+            
+            else if (getWorld()->boardisempty(nextX, nextY)) //if it is empty
+            {
+                characterAtTurningPoint();
+            }
+        }
+        
+    }
+}
+
 ////////////////////////////////////////////////////////////
 ///PlayerAvatar Implementations ////////
 ////////////////////////////////////////////////////////////
@@ -165,7 +200,6 @@ void PlayerAvatar::doSomething()
         if (action == ACTION_ROLL) { //rolling the "dice"
             die_roll = randInt(1, 10);
             resetTickstoMove(die_roll*8);
-//            ticks_to_Move = die_roll*8;
             waitingToRoll = false;
         }
         else if (action == ACTION_FIRE && hasVortex == true) //if the player fires a vortex
@@ -210,7 +244,7 @@ void PlayerAvatar::doSomething()
         }
         else { return; }
     }
-//--------------------------------------------------------------------------------------------
+    
    if (waitingToRoll == false) //otherwise, if it is in the WALKING state
    {
        
@@ -250,32 +284,29 @@ void PlayerAvatar::doSomething()
            else if (possibleMovementDirections() >= 2 && previousState == false) //if possible directions is greater than or equal to 2, that means the object is at a fork and the previousState is not waitingToRoll
            {
                int action = getWorld()->getAction(playerNumber); //getting user input
-               
-               if (action == ACTION_RIGHT && canMoveRight() == true)
+               if (action == ACTION_RIGHT && canMoveRight() == true && getWalkDirection() != left)
                {
                    SetWalkDirection(right);
                    setDirection(0);
                }
-               else if (action == ACTION_LEFT && canMoveLeft()== true)
+               else if (action == ACTION_LEFT && canMoveLeft()== true && getWalkDirection() != right)
                {
                    SetWalkDirection(left);
                    setDirection(180);
                }
-               else if (action == ACTION_DOWN && canMoveDown() == true)
+               else if (action == ACTION_DOWN && canMoveDown() == true && getWalkDirection() != up)
                {
                    SetWalkDirection(down);
                    setDirection(0);
                    
                }
-               else if (action == ACTION_UP && canMoveUp() == true)
+               else if (action == ACTION_UP && canMoveUp() == true && getWalkDirection() != down)
                {
                    SetWalkDirection(up);
                    setDirection(0);
                }
                else
-               {
-                   return;
-               }
+               { return; }
                
            }
        
@@ -288,10 +319,9 @@ void PlayerAvatar::doSomething()
        
        moveAtAngle(getWalkDirection(), 2);
        setTickstoMove(-1);
-//       ticks_to_Move --;
        if (returnTickstoMove()== 0) {
            waitingToRoll = true;
-           newPlayer = true;
+           newPlayer = true; //re-gains its new player status
        }
    }
 }
@@ -306,14 +336,13 @@ void CoinSquare::doSomething()
         {return;}
   
     if (getX()%16 == 0 && getY()%16 == 0){
-    
     if (getWorld()->PlayerLandsOnSquare(this, getWorld()->getPeach()) && getWorld()->getPeach()->newPlayerStatus() == true) //checking if Peach has landed on the square
     {
         getWorld()->getPeach()->setNewPlayerstatus(false);
         
         if (getWorld()->isBlueCoinSquare(getX(), getY())){
             
-        getWorld()->getPeach()->setCoins(3);
+        getWorld()->getPeach()->setCoins(3); //give Peach three coins
         getWorld()->playSound(SOUND_GIVE_COIN);
             
         
@@ -322,11 +351,11 @@ void CoinSquare::doSomething()
             
             int value = getWorld()->getPeach()->getCoins();
             if (value < 3) {
-                getWorld()->getPeach()->setCoins(-value);
+                getWorld()->getPeach()->setCoins(-value); //remove as many coinds as Peach has
             }
             else
             {
-                getWorld()->getPeach()->setCoins(-3);
+                getWorld()->getPeach()->setCoins(-3); //remove 3 coins from Peach
             }
             getWorld()->playSound(SOUND_TAKE_COIN);
         }
@@ -335,7 +364,6 @@ void CoinSquare::doSomething()
     else if (getWorld()->PlayerLandsOnSquare(this, getWorld()->getYoshi()) && getWorld()->getYoshi()->newPlayerStatus() == true) //checking if Yoshi has landed on the square
     {
         getWorld()->getYoshi()->setNewPlayerstatus(false);
-        
         if (getWorld()->isBlueCoinSquare(getX(), getY())) {
             
             getWorld()->getYoshi()->setCoins(3);
@@ -346,7 +374,7 @@ void CoinSquare::doSomething()
             int value = getWorld()->getYoshi()->getCoins();
             if (value < 3) {
                 
-                getWorld()->getYoshi()->setCoins(-value);
+                getWorld()->getYoshi()->setCoins(-value); //remove as many coins as Yoshi has
             }
             else
             {
@@ -382,7 +410,7 @@ void StarSquare::doSomething()
             getWorld()->getPeach()->setStars(1);
             getWorld()->playSound(SOUND_GIVE_STAR);
             
-        }
+            }
             
         }
     }
@@ -472,10 +500,6 @@ void BankSquare::doSomething()
 
 }
 
-/////////////////////////////////////////////////////////////////
-///Dropping Square Implementations /////
-////////////////////////////////////////////////////////////////
-
 void DroppingSquare::doSomething()
 {
     
@@ -489,12 +513,9 @@ void DroppingSquare::doSomething()
         switch (value) {
             case 1:
                 if (playerCoins < 10) {
-                    
                     getWorld()->getPeach()->setCoins(-playerCoins);
-                    
                 }
-                else
-                {
+                else {
                     getWorld()->getPeach()->setCoins(-10);
                 }
                 getWorld()->playSound(SOUND_DROPPING_SQUARE_ACTIVATE);
@@ -541,18 +562,16 @@ void DroppingSquare::doSomething()
     }
   
 }
-///////////////////////////////////////////////
-///Bowser Implementations ////
-///////////////////////////////////////////////
 
 void Bowser::doSomething()
 {
+    Baddy::doSomething();
     if(getPausedState())
     {
         if (getWorld()->PlayersOnSameSquare(this, getWorld()->getPeach()) && getWorld()->getPeach()->getWaitingToRollState() == true)
         {
-            int value = randInt(1, 2);
-            if (value == 1 && getHasActivatedOnPlayer() == false)
+            int value = randInt(1, 2); //generating a random value: 1 or 2
+            if (value == 1 && getHasActivatedOnPlayer() == false) //there is a 50% chance of it being 1 so that's why I only check if the value is one
             {
                 setHasActivatedOnPlayer(true);
                 getWorld()->getPeach()->swapCoins(0);
@@ -579,36 +598,15 @@ void Bowser::doSomething()
             int value = randInt(1, 10);
             setSquarestoMove(value);
             resetTickstoMove(8*value);
-            
             chooseRandomDirection();
             setPausedState(false);
         }
         
-    } //this brace closes of paused state if statement
+    }
     
-    if (getPausedState() == false) //meaning Bowser is in the walking state
+    if (!getPausedState()) //meaning Bowser is in the walking state
     {
-        
-        int nextX;
-        int nextY;
-        
-        getPositionInThisDirection(getWalkDirection(), 16, nextX, nextY); // get the next square in the current direction
-        
-        if (getX()%16 == 0 && getY()%16 == 0) { //if Bowser is directly on top of a Square
-            
-            if (possibleMovementDirections() >=2) //if Bowser is at a fork
-            {
-                chooseRandomDirection();
-                if (getWalkDirection() == left)
-                    setDirection(180);
-            }
-            
-            else if (getWorld()->boardisempty(nextX, nextY)) //if it is empty
-            {
-                characterAtTurningPoint();
-            }
-        }
-        
+        baddyInWalkingState();
         moveAtAngle(getWalkDirection(), 2);
         setTickstoMove(-1);
         if (returnTickstoMove() == 0) {
@@ -625,16 +623,13 @@ void Bowser::doSomething()
             }
         }
         
-    } //this brace closes of walking state if statement
+    }
     
 }
 
-/////////////////////////////////////////////
-///Boo Implementations ////////
-/////////////////////////////////////////////
-
 void Boo::doSomething()
 {
+    Baddy::doSomething();
     if (getPausedState())
     {
         if (getWorld()->PlayersOnSameSquare(this, getWorld()->getPeach()) && getWorld()->getPeach()->getWaitingToRollState() == true) //checking if Peach and Boo are on the same square first
@@ -702,31 +697,10 @@ void Boo::doSomething()
         }
    
     }
-    
-/////////////////////////////////////////////////
+
    if (!getPausedState())
    {
-       if (getX()%16 == 0 && getY()%16 == 0) { //if Boo is directly on top of a square
-       
-       int nextX;
-       int nextY;
-       
-       getPositionInThisDirection(getWalkDirection(), 16, nextX, nextY); // get the next square in the current direction
-       
-           if (possibleMovementDirections() >=2) //if Bowser is at a fork
-           {
-               chooseRandomDirection();
-               if (getWalkDirection() == left)
-                   setDirection(180);
-           }
-           
-           else if (getWorld()->boardisempty(nextX, nextY)) //if it is empty
-           {
-               characterAtTurningPoint();
-           }
-    
-           
-       } //this brace closes checking if boo is directly on top of a square
+       baddyInWalkingState();
        
        moveAtAngle(getWalkDirection(), 2);
        setTickstoMove(-1);
@@ -738,7 +712,7 @@ void Boo::doSomething()
            
        }
        
-   }// this brace closes off walking state
+   }
 
 }
 
@@ -757,10 +731,8 @@ void EventSquare::teleportPlayer(PlayerAvatar* a)
 
 void EventSquare::swapPositions(PlayerAvatar* a, PlayerAvatar* b)
 {
-    
     int tempAx = a->getX();
     int tempAy = a->getY();
-    
     int tempBx = b->getX();
     int tempBy = b->getY();
     
@@ -790,10 +762,10 @@ void EventSquare::doSomething()
     
     if (getWorld()->PlayerLandsOnSquare(this, getWorld()->getPeach()) && getWorld()->getPeach()->newPlayerStatus() == true)
     {
+        getWorld()->getPeach()->setNewPlayerstatus(false);
         int value = randInt(1, 3);
         switch (value) {
             case 1:
-                
                 getWorld()->getPeach()->setValidDirection(false);
                 teleportPlayer(getWorld()->getPeach());
                 getWorld()->playSound(SOUND_PLAYER_TELEPORT);
@@ -815,6 +787,7 @@ void EventSquare::doSomething()
     }
     else if (getWorld()->PlayerLandsOnSquare(this, getWorld()->getYoshi()) && getWorld()->getYoshi()->newPlayerStatus() == true)
     {
+        getWorld()->getYoshi()->setNewPlayerstatus(false);
         int value = randInt(1, 3);
         switch (value) {
             case 1:
@@ -837,34 +810,19 @@ void EventSquare::doSomething()
         }
         
     }
-    
-}
-
-//////////////////////////////////////////////////////
-///Vortex Implementations ////////////
-/////////////////////////////////////////////////////
-bool Vortex::vortexOverlapWithActor(Actor* a)
-{
-    return true;
 }
 
 void Vortex::doSomething()
 {
-    if (!stillAlive()){
-        return;;
-    }
+    if (!stillAlive()) { return; }
 
     moveAtAngle(getWorld()->getvortexWalkDirection(), 2);
 
     if (getX() < 0 || getX() >= VIEW_WIDTH || getY() < 0 || getY() >= VIEW_HEIGHT) {
-
         setAliveStatus(false);
+        return;
     }
     
-    
     getWorld()->objectOverlapwithVortex(this);
-
-//    setAliveStatus(false);
-    getWorld()->playSound(SOUND_HIT_BY_VORTEX);
 
 }

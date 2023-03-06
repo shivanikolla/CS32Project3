@@ -89,7 +89,7 @@ int StudentWorld::init()
         }
     }
     
-    startCountdownTimer(300);
+    startCountdownTimer(99);
     return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -105,7 +105,7 @@ int StudentWorld::move()
     oss << "$$: ";
     oss << p->getCoins() << " |";
     if (p->playerHasVortex()) {
-        oss << " VOR: ";
+        oss << " VOR";
     }
     oss << " Time: ";
     oss << timeRemaining() << " |";
@@ -118,7 +118,7 @@ int StudentWorld::move()
     oss << "$$: ";
     oss << yoshi->getCoins();
     if (yoshi->playerHasVortex()) {
-        oss << " VOR: ";
+        oss << " VOR ";
     }
     
     setGameStatText(oss.str());
@@ -240,15 +240,6 @@ bool StudentWorld::isRedCoinSquare(int x, int y)
     return false;
 }
 
-bool StudentWorld::hasPlayer(int x, int y)
-{
-    if (b->getContentsOf(x/SPRITE_WIDTH, y/SPRITE_HEIGHT) == Board::player)
-    {
-        return true;
-    }
-    return false;
-}
-
 void StudentWorld::createVortex(int x, int y, int walkDirection)
 {
     
@@ -276,9 +267,7 @@ void StudentWorld::createDroppingSquare(int x, int y)
 bool StudentWorld::isUpDirSquare(int x, int y)
 {
     if (b->getContentsOf(x/SPRITE_WIDTH, y/SPRITE_HEIGHT) == Board::up_dir_square)
-    {
         return true;
-    }
     
     return false;
 }
@@ -286,9 +275,7 @@ bool StudentWorld::isUpDirSquare(int x, int y)
 bool StudentWorld::isDownDirSquare(int x, int y)
 {
     if (b->getContentsOf(x/SPRITE_WIDTH, y/SPRITE_HEIGHT) == Board::down_dir_square)
-    {
         return true;
-    }
     
     return false;
     
@@ -297,9 +284,7 @@ bool StudentWorld::isDownDirSquare(int x, int y)
 bool StudentWorld::isRightDirSquare(int x, int y)
 {
     if (b->getContentsOf(x/SPRITE_WIDTH, y/SPRITE_HEIGHT) == Board::right_dir_square)
-    {
         return true;
-    }
     
     return false;
 }
@@ -307,9 +292,7 @@ bool StudentWorld::isRightDirSquare(int x, int y)
 bool StudentWorld::isLeftDirSquare(int x, int y)
 {
     if (b->getContentsOf(x/SPRITE_WIDTH, y/SPRITE_HEIGHT) == Board::left_dir_square)
-    {
         return true;
-    }
     
     return false;
 }
@@ -362,7 +345,6 @@ void StudentWorld::randomCoordinateGenerator() //a recursive random coordinate n
     int y = randInt(0, 255);
     if (x%16 == 0 && y%16 == 0) {
     if (b->getContentsOf(x/SPRITE_WIDTH, y/SPRITE_HEIGHT) != Board::empty) {
-        
         randomX = x;
         randomY = y;
         return;
@@ -375,27 +357,33 @@ void StudentWorld::randomCoordinateGenerator() //a recursive random coordinate n
 
 void StudentWorld::teleportBaddy(Actor* b)
 {
-    randomCoordinateGenerator();
-    if (!boardisempty(getRandomX(), getRandomY())) {
-        
-        b->moveTo(getRandomX(), getRandomY());
-        
+    randomCoordinateGenerator(); //generates a random set of coordinates on the board
+    
+    if (getRandomX()%16 == 0 && getRandomY()%16 == 0) { //checks that they are exactly on top of a square
+    
+        if (!boardisempty(getRandomX(), getRandomY())) //if that square is not empty
+        {
+            b->moveTo(getRandomX(), getRandomY()); //then move the baddy to that square
+        }
     }
+    BaddyHasBeenTeleported = true;
 }
 
 void StudentWorld::objectOverlapwithVortex(Vortex* v)
 {
     for (vector<Actor*>::iterator it = m_actor.begin(); it != m_actor.end(); it++)
     {
-        if ((*it)->can_be_hit_by_vortex()) {
-            if (v->getX() + SPRITE_WIDTH > (*it)->getX() && v->getX() < (*it)->getX()+SPRITE_WIDTH)
+        if ((*it)->can_be_hit_by_vortex())
+        {
+            if (v->getX() + SPRITE_WIDTH > (*it)->getX() &&  v->getX() < (*it)->getX()+SPRITE_WIDTH)
             {
-                teleportBaddy((*it));
-            }
-            
-            else if (v->getY() + SPRITE_HEIGHT > (*it)->getY() && v->getY() < (*it)->getY()+SPRITE_HEIGHT)
-            {
+                if (v->getY() + SPRITE_HEIGHT > (*it)->getY() && v->getY() < (*it)->getY()+SPRITE_HEIGHT)
+                {
                     teleportBaddy((*it));
+                    playSound(SOUND_HIT_BY_VORTEX);
+                    break;
+                    
+                }
             }
             
         }

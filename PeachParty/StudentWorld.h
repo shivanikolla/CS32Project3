@@ -23,8 +23,7 @@ public:
   bool boardisempty(int x, int y); //checks if a given square is empty
   bool isBlueCoinSquare(int x, int y);
     bool isRedCoinSquare(int x, int y);
-    bool hasPlayer(int x, int y);
-  void createVortex(int x, int y, int walkDirection);
+    void createVortex(int x, int y, int walkDirection);
     bool isUpDirSquare(int x, int y);
     bool isDownDirSquare(int x, int y);
     bool isRightDirSquare(int x, int y);
@@ -46,7 +45,8 @@ public:
     int getvortexWalkDirection() {return vortexWalkDirection;}
     void objectOverlapwithVortex(Vortex* v);
     void teleportBaddy(Actor* b);
-//    void setBaddyPausedStateAfterTeleporting(Baddy* b);
+    bool getBaddyHasBeenTeleported() const {return BaddyHasBeenTeleported;}
+    void setBaddyHasBeenTeleported(bool value) { BaddyHasBeenTeleported = value;}
     
 private:
     std::vector<Actor*> m_actor;
@@ -57,6 +57,7 @@ private:
     int randomX;
     int randomY;
     int vortexWalkDirection;
+    bool BaddyHasBeenTeleported;
 };
 
 #endif // STUDENTWORLD_H_
