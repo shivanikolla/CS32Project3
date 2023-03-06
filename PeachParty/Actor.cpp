@@ -207,36 +207,8 @@ void PlayerAvatar::doSomething()
             int vortexX;
             int vortexY;
             
-            int switchX;
-            int switchY;
-            
             getPositionInThisDirection(getWalkDirection(), 16, vortexX, vortexY);
-            
-            if (!getWorld()->boardisempty(vortexX, vortexY))
-            {
-                getWorld()->createVortex(vortexX, vortexY, WalkDirection());
-            }
-            else if (getWalkDirection() == up)
-            {
-                getPositionInThisDirection(left, 16, switchX, switchY);
-                
-                if (!getWorld()->boardisempty(switchX, switchY))
-                {
-                    getWorld()->createVortex(switchX, switchY, WalkDirection());
-                }
-                else
-                {
-                    getWorld()->createVortex(getX()+16, getY(), WalkDirection());
-                }
-            }
-            else if (getWalkDirection() == right)
-            {
-                getPositionInThisDirection(up, 16, switchX, switchY);
-                if (!getWorld()->boardisempty(switchX, switchY))
-                {
-                    getWorld()->createVortex(switchX, switchY, WalkDirection());
-                }
-            }
+            getWorld()->createVortex(vortexX, vortexY, WalkDirection());
 
             getWorld()->playSound(SOUND_PLAYER_FIRE);
             hasVortex = false;
@@ -443,7 +415,7 @@ void StarSquare::doSomething()
 
 void BankSquare::doSomething()
 {
-    if (getWorld()->PlayerLandsOnSquare(this, getWorld()->getPeach()))   //checking if Peach has LANDED on the square
+    if (getWorld()->PlayerLandsOnSquare(this, getWorld()->getPeach()) && getWorld()->getPeach()->newPlayerStatus())   //checking if Peach has LANDED on the square
     {
         getWorld()->getPeach()->setNewPlayerstatus(false);
         
@@ -454,7 +426,7 @@ void BankSquare::doSomething()
 
 
     }
-    else if (getWorld()->PlayerLandsOnSquare(this, getWorld()->getYoshi())) //checking if Yoshi has LANDED on the square
+    else if (getWorld()->PlayerLandsOnSquare(this, getWorld()->getYoshi()) && getWorld()->getYoshi()->newPlayerStatus()) //checking if Yoshi has LANDED on the square
     {
         getWorld()->getYoshi()->setNewPlayerstatus(false);
 
@@ -615,7 +587,7 @@ void Bowser::doSomething()
             setPausedState(true);
             resetPauseCounter(180);
             int value = randInt(1, 4);
-            if (value == 1) {
+            if (value == 3) { //there is a 25% chance of the random value being 3
                 
                 getWorld()->createDroppingSquare(getX(), getY());
                 getWorld()->playSound(SOUND_DROPPING_SQUARE_CREATED);
@@ -815,7 +787,6 @@ void EventSquare::doSomething()
 void Vortex::doSomething()
 {
     if (!stillAlive()) { return; }
-
     moveAtAngle(getWorld()->getvortexWalkDirection(), 2);
 
     if (getX() < 0 || getX() >= VIEW_WIDTH || getY() < 0 || getY() >= VIEW_HEIGHT) {

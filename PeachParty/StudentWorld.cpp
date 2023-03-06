@@ -105,7 +105,7 @@ int StudentWorld::move()
     oss << "$$: ";
     oss << p->getCoins() << " |";
     if (p->playerHasVortex()) {
-        oss << " VOR";
+        oss << " VOR |";
     }
     oss << " Time: ";
     oss << timeRemaining() << " |";
@@ -355,17 +355,18 @@ void StudentWorld::randomCoordinateGenerator() //a recursive random coordinate n
     
 }
 
-void StudentWorld::teleportBaddy(Actor* b)
+void StudentWorld::teleportBaddy(Actor* b, Vortex* v)
 {
     randomCoordinateGenerator(); //generates a random set of coordinates on the board
     
-    if (getRandomX()%16 == 0 && getRandomY()%16 == 0) { //checks that they are exactly on top of a square
+    if (getRandomX()%16 == 0 && getRandomY()%16 == 0) {
     
         if (!boardisempty(getRandomX(), getRandomY())) //if that square is not empty
         {
             b->moveTo(getRandomX(), getRandomY()); //then move the baddy to that square
         }
     }
+    v->setAliveStatus(false);
     BaddyHasBeenTeleported = true;
 }
 
@@ -375,11 +376,11 @@ void StudentWorld::objectOverlapwithVortex(Vortex* v)
     {
         if ((*it)->can_be_hit_by_vortex())
         {
-            if (v->getX() + SPRITE_WIDTH > (*it)->getX() &&  v->getX() < (*it)->getX()+SPRITE_WIDTH)
+            if (v->getX() + SPRITE_WIDTH > (*it)->getX() && v->getX() < (*it)->getX()+SPRITE_WIDTH)
             {
                 if (v->getY() + SPRITE_HEIGHT > (*it)->getY() && v->getY() < (*it)->getY()+SPRITE_HEIGHT)
                 {
-                    teleportBaddy((*it));
+                    teleportBaddy(*it, v);
                     playSound(SOUND_HIT_BY_VORTEX);
                     break;
                     

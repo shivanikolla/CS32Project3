@@ -44,7 +44,7 @@ public:
     int getRandomY() const {return randomY;}
     int getvortexWalkDirection() {return vortexWalkDirection;}
     void objectOverlapwithVortex(Vortex* v);
-    void teleportBaddy(Actor* b);
+    void teleportBaddy(Actor* b, Vortex* v);
     bool getBaddyHasBeenTeleported() const {return BaddyHasBeenTeleported;}
     void setBaddyHasBeenTeleported(bool value) { BaddyHasBeenTeleported = value;}
     

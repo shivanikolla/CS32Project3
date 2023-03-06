@@ -6,7 +6,7 @@
 	<integer>10</integer>
 	<key>logs</key>
 	<dict>
-		<key>A1C0BE4F-BEC3-44A2-A293-7E01428BD3E6</key>
+		<key>8436E639-57D6-4631-9461-F91907D82A23</key>
 		<dict>
 			<key>className</key>
 			<string>DBGConsoleLog</string>
@@ -15,7 +15,7 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.DebugLog</string>
 			<key>fileName</key>
-			<string>A1C0BE4F-BEC3-44A2-A293-7E01428BD3E6.xcactivitylog</string>
+			<string>8436E639-57D6-4631-9461-F91907D82A23.xcactivitylog</string>
 			<key>hasPrimaryLog</key>
 			<true/>
 			<key>primaryObservable</key>
@@ -32,13 +32,13 @@
 			<key>signature</key>
 			<string>Run PeachParty</string>
 			<key>timeStartedRecording</key>
-			<real>699767657.52216995</real>
+			<real>699774910.33357894</real>
 			<key>timeStoppedRecording</key>
-			<real>699767721.23080003</real>
+			<real>699774978.71049905</real>
 			<key>title</key>
 			<string>Run PeachParty</string>
 			<key>uniqueIdentifier</key>
-			<string>A1C0BE4F-BEC3-44A2-A293-7E01428BD3E6</string>
+			<string>8436E639-57D6-4631-9461-F91907D82A23</string>
 		</dict>
 	</dict>
 </dict>
