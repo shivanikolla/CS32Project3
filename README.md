@@ -1,3 +1,3 @@
-Completed for CS32 during Winter 2023 with Prof. Nachenberg
+Completed for CS32 (Data Structures and Algorithms) during Winter 2023 with Prof. Nachenberg
 
-100/100
+Score: 100/100
